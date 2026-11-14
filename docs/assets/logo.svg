@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Tsuzuri</title>
+  <desc id="desc">A washi-paper book bound on the right with vermilion four-hole stab binding (yotsume toji) on an indigo tile.</desc>
+
+  <!-- Indigo (ai-iro) tile -->
+  <rect width="512" height="512" rx="112" fill="#1F2A44"/>
+
+  <!-- Page block, visible as thickness behind the cover -->
+  <rect x="148" y="108" width="240" height="320" rx="10" fill="#CFC3A6"/>
+
+  <!-- Washi cover -->
+  <rect x="132" y="92" width="240" height="320" rx="10" fill="#F4EEDF"/>
+
+  <!-- Spine band on the right: Japanese books open right-to-left -->
+  <path d="M324 92h38a10 10 0 0 1 10 10v300a10 10 0 0 1-10 10h-38z" fill="#E6DCC4"/>
+
+  <!-- Title slip (daisen) -->
+  <rect x="164" y="124" width="52" height="172" rx="4" fill="#FFFFFF" stroke="#1F2A44" stroke-opacity=".18" stroke-width="2"/>
+  <rect x="182" y="146" width="16" height="72" rx="3" fill="#1F2A44"/>
+  <rect x="182" y="232" width="16" height="40" rx="3" fill="#1F2A44" opacity=".45"/>
+
+  <!-- Vermilion (shu) thread: yotsume toji -->
+  <g stroke="#D9452B" stroke-width="9" stroke-linecap="round" fill="none">
+    <path d="M346 92V412"/>
+    <path d="M346 146H372M346 216H372M346 288H372M346 358H372"/>
+    <path d="M346 92V80M346 412V424"/>
+  </g>
+
+  <!-- Binding holes -->
+  <g fill="#1F2A44">
+    <circle cx="346" cy="146" r="5"/>
+    <circle cx="346" cy="216" r="5"/>
+    <circle cx="346" cy="288" r="5"/>
+    <circle cx="346" cy="358" r="5"/>
+  </g>
+</svg>
