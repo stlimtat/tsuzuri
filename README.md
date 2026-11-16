@@ -68,6 +68,17 @@ Source language is Japanese at launch, with Korean and Chinese to follow. Target
 - [`specs/00-overview.md`](specs/00-overview.md): product, phases, architecture and module map.
 - [`docs/adr/`](docs/adr/): architecture decision records.
 
+## Development
+
+One Swift package per module under [`Packages/`](Packages/) (ADR 0002). Run every package's tests, or one:
+
+```bash
+scripts/test.sh
+scripts/test.sh ComicStructure
+```
+
+Works with Xcode or with the Command Line Tools alone. Shared fixtures live in [`Fixtures/golden/`](Fixtures/golden/); security controls in [`security/`](security/).
+
 ## Status
 
-Pre-alpha. Specifications are in place; R1 implementation is starting.
+Pre-alpha. M1 (Foundations) in progress: `ComicStructure` v1 and a local `Persistence` store are in place.
