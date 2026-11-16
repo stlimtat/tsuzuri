@@ -56,3 +56,23 @@ import Testing
         #expect(result.chapters[0].panels.prefix(2).map(\.shape.bounds.minX) == [0.5, 0])
     }
 }
+
+@Suite struct ReadingOrderOverrideTests {
+    @Test func recomputeKeepsPanelsTheUserMoved() throws {
+        let work = makeWork()
+        let ch = work.chapters[0]
+        let left = ch.panels[1]  // left Panel of Page 0; geometry puts it second (right-to-left)
+        let moved = try #require(try editor.apply(.movePanel(left.id, toReadingIndex: 0), to: work).work)
+        #expect(moved.chapters[0].panels[0].readingOrderSource == .user)
+
+        // Scramble the rest so recompute has detected Panels to reorder around the pin.
+        var scrambled = moved
+        scrambled.chapters[0].panels[1...].reverse()
+        for i in scrambled.chapters[0].panels.indices { scrambled.chapters[0].panels[i].readingIndex = i }
+
+        let result = try #require(try editor.apply(.recomputeReadingOrder(chapterID: ch.id), to: scrambled).work)
+        var expected = ch.panels.map(\.id)
+        expected.swapAt(0, 1)
+        #expect(result.chapters[0].panels.map(\.id) == expected)
+    }
+}

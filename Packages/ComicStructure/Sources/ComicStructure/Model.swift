@@ -121,13 +121,18 @@ public struct Panel: Identifiable, Hashable, Codable, Sendable {
     /// Convex polygon in normalized coordinates of a virtual canvas spanning `pageIDs` (see `Canvas`).
     public var shape: Polygon
     public var readingIndex: Int
+    /// `.user` once the user moves the Panel; recomputing reading order keeps it at its index.
+    public var readingOrderSource: ReadingOrderSource
     public var bubbles: [Bubble]
 
-    public init(id: UUID = UUID(), createdAt: Date = Date(), updatedAt: Date? = nil, pageIDs: [UUID], shape: Polygon, readingIndex: Int, bubbles: [Bubble] = []) {
+    public init(id: UUID = UUID(), createdAt: Date = Date(), updatedAt: Date? = nil, pageIDs: [UUID], shape: Polygon, readingIndex: Int, readingOrderSource: ReadingOrderSource = .detected, bubbles: [Bubble] = []) {
         self.id = id; self.createdAt = createdAt; self.updatedAt = updatedAt ?? createdAt
-        self.pageIDs = pageIDs; self.shape = shape; self.readingIndex = readingIndex; self.bubbles = bubbles
+        self.pageIDs = pageIDs; self.shape = shape; self.readingIndex = readingIndex
+        self.readingOrderSource = readingOrderSource; self.bubbles = bubbles
     }
 }
+
+public enum ReadingOrderSource: String, Codable, Sendable { case detected, user }
 
 public enum TextOrientation: String, Codable, Sendable, CaseIterable { case horizontal, vertical }
 public enum OrientationSource: String, Codable, Sendable { case detected, user }
