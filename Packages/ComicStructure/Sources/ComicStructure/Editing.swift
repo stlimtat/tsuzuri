@@ -225,14 +225,23 @@ private struct Edit {
         case let .movePanel(id, toReadingIndex):
             let (c, p) = try panelIndex(id)
             guard work.chapters[c].panels.indices.contains(toReadingIndex) else { throw EditError.invalid("reading index out of range") }
-            let panel = work.chapters[c].panels.remove(at: p)
+            var panel = work.chapters[c].panels.remove(at: p)
+            panel.readingOrderSource = .user
             work.chapters[c].panels.insert(panel, at: toReadingIndex)
             renumber(c)
         case let .recomputeReadingOrder(chapterID):
             let c = try chapterIndex(chapterID)
-            let order = ReadingOrder.panels(of: work.chapters[c], direction: direction)
-            let byID = Dictionary(uniqueKeysWithValues: work.chapters[c].panels.map { ($0.id, $0) })
-            work.chapters[c].panels = order.compactMap { byID[$0] }
+            let panels = work.chapters[c].panels
+            let byID = Dictionary(uniqueKeysWithValues: panels.map { ($0.id, $0) })
+            // Detected Panels follow geometry; user-moved Panels go back to their index, in index order.
+            // ponytail: pins hold an absolute index, so deleting earlier Panels shifts what a pin follows.
+            // Upgrade to "comes after Panel X" constraints if that bites.
+            var ordered = ReadingOrder.panels(of: work.chapters[c], direction: direction)
+                .compactMap { byID[$0] }.filter { $0.readingOrderSource == .detected }
+            for pinned in panels.filter({ $0.readingOrderSource == .user }) {
+                ordered.insert(pinned, at: min(pinned.readingIndex, ordered.count))
+            }
+            work.chapters[c].panels = ordered
             renumber(c)
 
         // MARK: Bubble
