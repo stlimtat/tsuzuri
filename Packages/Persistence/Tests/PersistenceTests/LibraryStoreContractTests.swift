@@ -26,7 +26,16 @@ struct StoreFactory: Sendable, CustomTestStringConvertible {
             corruptLocalRecord: { try Data("{".utf8).write(to: root.appending(path: "works/\(UUID()).json")) })
     }
 
-    static let all: [StoreFactory] = [.local]
+    static let cloud = StoreFactory(name: "CloudLibraryStore") {
+        let root = FileManager.default.temporaryDirectory.appending(path: "LibraryStoreTests-\(UUID())")
+        let records = FakeRecordSyncBackend(), files = FakeUbiquitousFileContainer()
+        return StoreFixture(
+            store: try CloudLibraryStore(root: root, records: records, files: files),
+            reopen: { try CloudLibraryStore(root: root, records: records, files: files) },
+            corruptLocalRecord: { try Data("{".utf8).write(to: root.appending(path: "works/\(UUID()).json")) })
+    }
+
+    static let all: [StoreFactory] = [.local, .cloud]
 }
 
 func tempFile(_ contents: String, ext: String) throws -> URL {

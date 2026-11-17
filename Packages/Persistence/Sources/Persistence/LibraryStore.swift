@@ -35,8 +35,7 @@ public protocol LibraryStore: Sendable {
 }
 
 /// The Library on this device: one versioned JSON record per Work in `works/`, files in `files/<kind>/`.
-// ponytail: local only, so it reports `.offline` and refuses eviction. iCloud sync (CloudKit for records,
-// the iCloud Drive container for files) needs the app target's entitlements and lands with the App Shell.
+// Local only, so it reports `.offline` and refuses eviction; `CloudLibraryStore` is the synced Library.
 public actor LocalLibraryStore: LibraryStore {
     let layout: LibraryLayout
 
@@ -60,6 +59,15 @@ public actor LocalLibraryStore: LibraryStore {
     public func save(_ work: Work) async throws {
         try Invariants.validate(work)
         try ComicSchema.encode(work).write(to: layout.recordURL(work.id), options: [.atomic, .completeFileProtection])
+    }
+
+    /// The Work with this ID, or nil if the Library has none.
+    func work(_ id: Work.ID) throws -> Work? {
+        let url = layout.recordURL(id)
+        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
+        do { return try ComicSchema.decode(Data(contentsOf: url)) } catch {
+            throw PersistenceError.corruptRecord(url.lastPathComponent, underlying: String(describing: error))
+        }
     }
 
     public func delete(_ workID: Work.ID) async throws {
