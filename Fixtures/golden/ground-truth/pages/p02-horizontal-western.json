@@ -1,0 +1,269 @@
+{
+  "id" : "p02-horizontal-western",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.06,
+              0.05
+            ],
+            [
+              0.45,
+              0.05
+            ],
+            [
+              0.45,
+              0.18
+            ],
+            [
+              0.06,
+              0.18
+            ]
+          ],
+          "sfx" : false,
+          "text" : "新しいカフェができたって。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.02
+        ],
+        [
+          0.49,
+          0.02
+        ],
+        [
+          0.49,
+          0.32
+        ],
+        [
+          0.02,
+          0.32
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.6,
+              0.06
+            ],
+            [
+              0.94,
+              0.06
+            ],
+            [
+              0.94,
+              0.16
+            ],
+            [
+              0.6,
+              0.16
+            ]
+          ],
+          "sfx" : false,
+          "text" : "行ってみる？",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.51,
+          0.02
+        ],
+        [
+          0.98,
+          0.02
+        ],
+        [
+          0.98,
+          0.32
+        ],
+        [
+          0.51,
+          0.32
+        ]
+      ],
+      "readingIndex" : 1
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 3,
+              "reading" : "ほうかご",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.08,
+              0.38
+            ],
+            [
+              0.6,
+              0.38
+            ],
+            [
+              0.6,
+              0.5
+            ],
+            [
+              0.08,
+              0.5
+            ]
+          ],
+          "sfx" : false,
+          "text" : "うん、放課後にね。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.34
+        ],
+        [
+          0.98,
+          0.34
+        ],
+        [
+          0.98,
+          0.64
+        ],
+        [
+          0.02,
+          0.64
+        ]
+      ],
+      "readingIndex" : 2
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "たの",
+              "start" : 0
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.06,
+              0.7
+            ],
+            [
+              0.45,
+              0.7
+            ],
+            [
+              0.45,
+              0.82
+            ],
+            [
+              0.06,
+              0.82
+            ]
+          ],
+          "sfx" : false,
+          "text" : "楽しみだなあ。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.66
+        ],
+        [
+          0.49,
+          0.66
+        ],
+        [
+          0.49,
+          0.98
+        ],
+        [
+          0.02,
+          0.98
+        ]
+      ],
+      "readingIndex" : 3
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.56,
+              0.72
+            ],
+            [
+              0.94,
+              0.72
+            ],
+            [
+              0.94,
+              0.84
+            ],
+            [
+              0.56,
+              0.84
+            ]
+          ],
+          "sfx" : false,
+          "text" : "じゃあ、また後で！",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.51,
+          0.66
+        ],
+        [
+          0.98,
+          0.66
+        ],
+        [
+          0.98,
+          0.98
+        ],
+        [
+          0.51,
+          0.98
+        ]
+      ],
+      "readingIndex" : 4
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "leftToRight",
+  "schemaVersion" : 1
+}

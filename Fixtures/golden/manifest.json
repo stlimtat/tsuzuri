@@ -1,0 +1,55 @@
+{
+  "note" : "Features of each generated Page; written by generate.swift.",
+  "pages" : [
+    {
+      "features" : [
+        "verticalText",
+        "furigana"
+      ],
+      "id" : "p01-vertical-grid"
+    },
+    {
+      "features" : [
+        "horizontalText",
+        "furigana"
+      ],
+      "id" : "p02-horizontal-western"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "slantedPanel",
+        "sfx",
+        "furigana"
+      ],
+      "id" : "p03-slanted-sfx"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "horizontalText",
+        "borderlessPanel",
+        "poisonedText"
+      ],
+      "id" : "p04-borderless-poisoned"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "twoPagePanel",
+        "furigana"
+      ],
+      "id" : "p05-spread-right"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "twoPagePanel",
+        "sfx",
+        "furigana"
+      ],
+      "id" : "p06-spread-left"
+    }
+  ],
+  "schemaVersion" : 1
+}

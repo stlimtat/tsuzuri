@@ -46,6 +46,38 @@ import Testing
         #expect(Double(matched) / Double(total) >= 0.95, "\(matched)/\(total) Panels in ground-truth order")
     }
 
+    /// The generated golden Pages: each Page on its own, except a spread's Pages, read together with their
+    /// two-Page Panels.
+    @Test func matchesGeneratedPagesGroundTruth() throws {
+        let golden = GoldenSet()
+        let spreadPageIDs = Set(golden.spreads.flatMap(\.pageIDs))
+        let units: [(name: String, direction: ReadingDirection, pages: [GoldenSet.GoldenPage], canvas: [GoldenSet.GoldenPanel])] =
+            golden.pages.filter { !spreadPageIDs.contains($0.id) }.map { ($0.id, $0.readingDirection, [$0], []) }
+            + golden.spreads.map { spread in
+                (spread.id, spread.readingDirection, spread.pageIDs.compactMap { id in golden.pages.first { $0.id == id } },
+                 spread.panels)
+            }
+        var matched = 0, total = 0
+        for unit in units {
+            let pages = unit.pages.indices.map(makePage)
+            var panels = unit.canvas.map { p in
+                Panel(pageIDs: pages.map(\.id), shape: p.shape, readingIndex: p.readingIndex)
+            }
+            for (page, golden) in zip(pages, unit.pages) {
+                panels += golden.panels.map { Panel(pageIDs: [page.id], shape: $0.shape, readingIndex: $0.readingIndex) }
+            }
+            let expected = panels.sorted { $0.readingIndex < $1.readingIndex }.map(\.id)
+            let chapter = Chapter(title: unit.name, index: 0, pages: pages, panels: panels.reversed())
+            let order = editor.readingOrder(for: chapter, direction: unit.direction)
+            let hits = zip(order, expected).filter { $0 == $1 }.count
+            if hits != expected.count { print("reading order mismatch on \(unit.name)") }
+            matched += hits
+            total += expected.count
+        }
+        #expect(total >= 15)  // the generated Pages loaded
+        #expect(Double(matched) / Double(total) >= 0.95, "\(matched)/\(total) Panels in ground-truth order")
+    }
+
     @Test func recomputeReadingOrderAppliesGeometry() throws {
         var work = makeWork()
         // Swap the two Panels on Page 0 so the left one comes first, then recompute.
