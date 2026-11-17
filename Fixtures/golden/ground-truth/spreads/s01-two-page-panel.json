@@ -1,0 +1,92 @@
+{
+  "id" : "s01-two-page-panel",
+  "pageIDs" : [
+    "p05-spread-right",
+    "p06-spread-left"
+  ],
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "うみ",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.84,
+              0.05
+            ],
+            [
+              0.94,
+              0.05
+            ],
+            [
+              0.94,
+              0.3
+            ],
+            [
+              0.84,
+              0.3
+            ]
+          ],
+          "sfx" : false,
+          "text" : "見て、海だ！",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.1,
+              0.06
+            ],
+            [
+              0.3,
+              0.06
+            ],
+            [
+              0.3,
+              0.44
+            ],
+            [
+              0.1,
+              0.44
+            ]
+          ],
+          "sfx" : true,
+          "text" : "ザザーン",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.02
+        ],
+        [
+          0.98,
+          0.02
+        ],
+        [
+          0.98,
+          0.47
+        ],
+        [
+          0.02,
+          0.47
+        ]
+      ],
+      "readingIndex" : 0
+    }
+  ],
+  "readingDirection" : "rightToLeft",
+  "schemaVersion" : 1
+}
