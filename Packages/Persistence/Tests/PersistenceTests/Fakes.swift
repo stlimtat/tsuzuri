@@ -1,5 +1,6 @@
 import ComicStructure
 import Foundation
+import Synchronization
 @testable import Persistence
 
 /// An in-memory private record database with a change feed, like one CloudKit zone: every save or delete
@@ -22,8 +23,12 @@ actor FakeRecordSyncBackend: RecordSyncBackend {
             token: ChangeToken(rawValue: withUnsafeBytes(of: position) { Data($0) }))
     }
 
+    /// How many records have been uploaded, counting each upload of the same Work.
+    private(set) var uploads = 0
+
     func save(_ records: [WorkRecord]) async throws {
         if let hook = whileUploading { whileUploading = nil; await hook() }
+        uploads += records.count
         for record in records {
             position += 1
             self.records[record.workID] = (.record(record), position)
@@ -47,8 +52,12 @@ actor FakeUbiquitousFileContainer: UbiquitousFileContainer {
     private var uploading: Set<FileRef> = []
     private var holdingUploads = false
 
+    private var refusingRemovals = false
+
     /// From now on, copied-in files stay "uploading": readable on this device, not yet in iCloud.
     func holdUploads() { holdingUploads = true }
+    /// Makes `remove` fail as if the account dropped just then, or stops it failing.
+    func refuseRemovals(_ refuse: Bool) { refusingRemovals = refuse }
 
     func copyIn(_ local: URL, as ref: FileRef) async throws {
         files[ref] = try Data(contentsOf: local)
@@ -62,27 +71,149 @@ actor FakeUbiquitousFileContainer: UbiquitousFileContainer {
 
     func isUploaded(_ ref: FileRef) async throws -> Bool { files[ref] != nil && !uploading.contains(ref) }
 
-    func remove(_ ref: FileRef) async throws { files[ref] = nil }
+    func remove(_ ref: FileRef) async throws {
+        if refusingRemovals { throw ICloudError.accountUnavailable }
+        files[ref] = nil
+    }
 
     /// Every file the container holds, for asserting what was uploaded or removed.
     var all: Set<FileRef> { Set(files.keys) }
 }
 
+/// A clock that moves only when the test advances it. Each `sleep` is announced on `sleeps` with its duration.
+final class ManualClock: Clock, Sendable {
+    struct Instant: InstantProtocol {
+        let offset: Duration
+        func advanced(by duration: Duration) -> Instant { Instant(offset: offset + duration) }
+        func duration(to other: Instant) -> Duration { other.offset - offset }
+        static func < (lhs: Instant, rhs: Instant) -> Bool { lhs.offset < rhs.offset }
+    }
+    private struct Sleeper { let deadline: Instant; let wake: CheckedContinuation<Void, Error> }
+    private let state = Mutex((now: Instant(offset: .zero), sleepers: [UUID: Sleeper]()))
+    private let announce: AsyncStream<Duration>.Continuation
+    /// The duration of every sleep started on this clock, in order.
+    let sleeps: AsyncStream<Duration>
+
+    init() { (sleeps, announce) = AsyncStream.makeStream() }
+
+    var now: Instant { state.withLock { $0.now } }
+    var minimumResolution: Duration { .zero }
+
+    func sleep(until deadline: Instant, tolerance: Duration?) async throws {
+        let id = UUID()
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (wake: CheckedContinuation<Void, Error>) in
+                let (now, waiting) = state.withLock { state in
+                    let waiting = !Task.isCancelled && state.now < deadline
+                    if waiting { state.sleepers[id] = Sleeper(deadline: deadline, wake: wake) }
+                    return (state.now, waiting)
+                }
+                announce.yield(now.duration(to: deadline))
+                if !waiting { Task.isCancelled ? wake.resume(throwing: CancellationError()) : wake.resume() }
+            }
+        } onCancel: {
+            state.withLock { $0.sleepers.removeValue(forKey: id) }?.wake.resume(throwing: CancellationError())
+        }
+    }
+
+    /// Moves time forward and wakes every sleep whose deadline has passed.
+    func advance(by duration: Duration) {
+        let due = state.withLock { state in
+            state.now = state.now.advanced(by: duration)
+            let due = state.sleepers.filter { $0.value.deadline <= state.now }
+            for id in due.keys { state.sleepers[id] = nil }
+            return due.values
+        }
+        for sleeper in due { sleeper.wake.resume() }
+    }
+}
+
+/// Holds a value set in one task and read in another.
+actor Box<Value: Sendable> {
+    var value: Value?
+    func set(_ new: Value) { value = new }
+}
+
+/// One device's view of the iCloud account: signed in with space, signed out, or full.
+final class FakeAccount: Sendable {
+    enum State { case available, unavailable, full }
+    private let state = Mutex(State.available)
+
+    func set(_ new: State) { state.withLock { $0 = new } }
+
+    /// Throws the way iCloud does when the account can't take this request; `writes` adds data to iCloud.
+    func check(writes: Bool) throws {
+        switch state.withLock({ $0 }) {
+        case .available: break
+        case .unavailable: throw ICloudError.accountUnavailable
+        case .full: if writes { throw ICloudError.quotaExceeded }
+        }
+    }
+}
+
+/// The shared record database as one device reaches it, through that device's account.
+struct DeviceRecords: RecordSyncBackend {
+    let shared: FakeRecordSyncBackend
+    let account: FakeAccount
+
+    func fetchChanges(since token: ChangeToken?) async throws -> RecordChanges {
+        try account.check(writes: false)
+        return try await shared.fetchChanges(since: token)
+    }
+    func save(_ records: [WorkRecord]) async throws {
+        try account.check(writes: true)
+        try await shared.save(records)
+    }
+    func delete(_ tombstones: [Tombstone]) async throws {
+        try account.check(writes: false)
+        try await shared.delete(tombstones)
+    }
+}
+
+/// The shared file container as one device reaches it, through that device's account.
+struct DeviceFiles: UbiquitousFileContainer {
+    let shared: FakeUbiquitousFileContainer
+    let account: FakeAccount
+
+    func copyIn(_ local: URL, as ref: FileRef) async throws {
+        try account.check(writes: true)
+        try await shared.copyIn(local, as: ref)
+    }
+    func download(_ ref: FileRef, to local: URL) async throws {
+        try account.check(writes: false)
+        try await shared.download(ref, to: local)
+    }
+    func isUploaded(_ ref: FileRef) async throws -> Bool { try await shared.isUploaded(ref) }
+    func remove(_ ref: FileRef) async throws {
+        try account.check(writes: false)
+        try await shared.remove(ref)
+    }
+}
+
 /// Two devices sharing one iCloud account: each has its own local Library, both share one record database
-/// and one file container.
+/// and one file container, and each reaches them through its own `FakeAccount`.
 struct TwoDevices {
     let records = FakeRecordSyncBackend()
     let files = FakeUbiquitousFileContainer()
+    let accountA = FakeAccount()
+    let accountB = FakeAccount()
+    /// Device A's clock, which drives its sync retries.
+    let clock = ManualClock()
     let rootA = FileManager.default.temporaryDirectory.appending(path: "DeviceA-\(UUID())")
     let rootB = FileManager.default.temporaryDirectory.appending(path: "DeviceB-\(UUID())")
     let a: CloudLibraryStore
     let b: CloudLibraryStore
 
     init() throws {
-        a = try CloudLibraryStore(root: rootA, records: records, files: files)
-        b = try CloudLibraryStore(root: rootB, records: records, files: files)
+        a = try CloudLibraryStore(root: rootA, records: DeviceRecords(shared: records, account: accountA),
+                                  files: DeviceFiles(shared: files, account: accountA), clock: clock)
+        b = try CloudLibraryStore(root: rootB, records: DeviceRecords(shared: records, account: accountB),
+                                  files: DeviceFiles(shared: files, account: accountB))
     }
 
     /// Device A relaunched: a new store on A's Library.
-    func reopenA() throws -> CloudLibraryStore { try CloudLibraryStore(root: rootA, records: records, files: files) }
+    func reopenA() throws -> CloudLibraryStore {
+        try CloudLibraryStore(root: rootA, records: DeviceRecords(shared: records, account: accountA),
+                              files: DeviceFiles(shared: files, account: accountA))
+    }
 }

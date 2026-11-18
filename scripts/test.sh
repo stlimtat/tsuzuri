@@ -21,6 +21,6 @@ for p in "${packages[@]}"; do
     if [[ ${#flags[@]} -gt 0 ]]; then echo "Skipped: the app's tests need Xcode, not Command Line Tools."; continue; fi
     xcodebuild test -quiet -project Apps/iOS/Tsuzuri.xcodeproj -scheme TsuzuriTests -destination platform=macOS "$@"
   else
-    swift test --package-path "Packages/$p" "${flags[@]}" "$@"
+    swift test --package-path "Packages/$p" ${flags[@]+"${flags[@]}"} "$@"
   fi
 done

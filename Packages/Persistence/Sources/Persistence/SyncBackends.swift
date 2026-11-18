@@ -53,6 +53,14 @@ public struct RecordChanges: Sendable {
     }
 }
 
+/// Why iCloud refused a request. Backends throw these so sync can tell the user and keep everything queued.
+public enum ICloudError: Error, Equatable, Sendable {
+    /// Signed out of iCloud, iCloud restricted, or no network.
+    case accountUnavailable
+    /// The user's iCloud storage is full.
+    case quotaExceeded
+}
+
 /// The user's private record database (live: CloudKit, one custom zone of the private database).
 public protocol RecordSyncBackend: Sendable {
     /// Every record changed since `token`; `nil` means from the beginning.
