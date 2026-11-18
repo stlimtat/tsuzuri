@@ -19,10 +19,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [ComicStructure, Persistence]
+        package: [ComicStructure, Persistence, App]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: scripts/test.sh ${{ matrix.package }}
+
+  app:
+    name: Build iOS app (Simulator, unsigned)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: scripts/build-app.sh
 
   secrets:
     name: Secret scan

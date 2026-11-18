@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Runs every Swift package's tests. Usage: scripts/test.sh [package-name] [extra swift test args]
+# Runs every Swift package's tests, then the iOS app's logic tests (on macOS, no simulator needed).
+# Usage: scripts/test.sh [package-name | App] [extra test args]
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -12,9 +13,14 @@ if [[ "$(xcode-select -p 2>/dev/null)" == *CommandLineTools* ]]; then
 fi
 
 packages=("${1:-}")
-[[ -z "${packages[0]}" ]] && packages=($(ls Packages))
+[[ -z "${packages[0]}" ]] && packages=($(ls Packages) App)
 shift || true
 for p in "${packages[@]}"; do
   echo "== $p"
-  swift test --package-path "Packages/$p" "${flags[@]}" "$@"
+  if [[ "$p" == App ]]; then
+    if [[ ${#flags[@]} -gt 0 ]]; then echo "Skipped: the app's tests need Xcode, not Command Line Tools."; continue; fi
+    xcodebuild test -quiet -project Apps/iOS/Tsuzuri.xcodeproj -scheme TsuzuriTests -destination platform=macOS "$@"
+  else
+    swift test --package-path "Packages/$p" "${flags[@]}" "$@"
+  fi
 done
