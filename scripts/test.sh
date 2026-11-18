@@ -16,5 +16,5 @@ packages=("${1:-}")
 shift || true
 for p in "${packages[@]}"; do
   echo "== $p"
-  swift test --package-path "Packages/$p" "${flags[@]}" "$@"
+  swift test --package-path "Packages/$p" ${flags[@]+"${flags[@]}"} "$@"
 done

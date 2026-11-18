@@ -12,19 +12,35 @@ public actor CloudLibraryStore: LibraryStore {
     private var outbox: Outbox
     private let outboxURL: URL
     private let status: StatusFeed
+    /// What went wrong in the last sync (`.offline`, `.iCloudFull`, or `.error` for skipped remote records), or
+    /// nil; shown in place of `.syncing`/`.synced` until a sync finishes cleanly. Change it only through `report`.
+    private var problem: SyncStatus?
     /// When each Work this device knows was deleted was deleted; a save no later than that is dropped.
     /// Kept on disk; change it only through `recordDeletion`.
     private var deletions: [Work.ID: Date]
     private let deletionsURL: URL
     /// Where this device has read the record feed up to.
     private var token: ChangeToken?
+    /// The most recently started sync, which the next one waits for.
+    private var lastSync: Task<Void, Error>?
+    /// Times the waits between sync retries.
+    private let clock: any Clock<Duration>
+    /// Resumes `keepSynced` from its current wait; numbered so a stale retry timer can't end a later wait.
+    private var wakeUp: CheckedContinuation<Void, Never>?
+    private var waitID = 0
+    /// A `requestSync` that came while no wait was in progress, so the next one ends at once.
+    private var syncRequested = false
 
-    public init(root: URL, records: any RecordSyncBackend, files: any UbiquitousFileContainer) throws {
+    public init(root: URL, records: any RecordSyncBackend, files: any UbiquitousFileContainer,
+                clock: any Clock<Duration> = ContinuousClock()) throws {
+        self.clock = clock
         local = try LocalLibraryStore(root: root)
         self.records = records
         self.files = files
         outboxURL = root.appending(path: "outbox.json")
         deletionsURL = root.appending(path: "deletions.json")
+        // A corrupt outbox throws rather than reporting `.error` and starting empty, which would silently never
+        // upload the writes it held. ponytail: rebuild it instead (queue every local Work and file) if it happens.
         outbox = try Self.load(outboxURL) ?? Outbox()
         deletions = try Self.load(deletionsURL) ?? [:]
         status = StatusFeed(outbox.isEmpty ? .synced : .syncing)
@@ -46,8 +62,15 @@ public actor CloudLibraryStore: LibraryStore {
     private func updateOutbox(_ change: (inout Outbox) -> Void) throws {
         change(&outbox)
         try JSONEncoder().encode(outbox).write(to: outboxURL, options: [.atomic, .completeFileProtection])
-        status.publish(outbox.isEmpty ? .synced : .syncing)
+        publishStatus()
     }
+
+    private func report(_ problem: SyncStatus?) {
+        self.problem = problem
+        publishStatus()
+    }
+
+    private func publishStatus() { status.publish(problem ?? (outbox.isEmpty ? .synced : .syncing)) }
 
     public func works(kind: WorkKind?) async throws -> [Work] { try await local.works(kind: kind) }
     /// Drops a save of a deleted Work unless it is later than the delete.
@@ -83,11 +106,41 @@ public actor CloudLibraryStore: LibraryStore {
     }
     /// Brings this device and iCloud up to date: applies remote changes, then uploads queued files and
     /// records (files first, so no uploaded record points at a file iCloud lacks).
+    /// Throws when iCloud is unreachable or refuses the upload; whatever didn't upload stays queued. A remote
+    /// record that fails `verified()` is skipped and reported as `.error`, not thrown. A sync
+    /// called while another runs starts once that one ends.
     public func sync() async throws {
+        let previous = lastSync
+        let pass = Task {
+            _ = await previous?.result
+            try await syncAndReport()
+        }
+        lastSync = pass
+        try await pass.value
+    }
+
+    private func syncAndReport() async throws {
+        do {
+            let rejected = try await syncOnce()
+            report(rejected.isEmpty ? nil : .error("Skipped \(rejected.count) bad record(s) from iCloud: " + rejected.joined(separator: "; ")))
+        } catch let error as ICloudError {
+            report(error == .accountUnavailable ? .offline : .iCloudFull)
+            throw error
+        }
+    }
+
+    /// One pass; returns why each remote record it skipped was rejected.
+    private func syncOnce() async throws -> [String] {
         let changes = try await records.fetchChanges(since: token)
-        for record in changes.changed {
+        var rejected: [String] = []
+        for remote in changes.changed {
+            // Untrusted: a bad record is skipped, leaving the local copy alone and the rest of the batch going.
+            let record: WorkRecord
+            do { record = try remote.verified() } catch {
+                rejected.append("Work \(remote.workID): \(error)")
+                continue
+            }
             let queued = outbox.works[record.workID]
-            // ponytail: a bad remote record fails the whole sync for now; reporting and skipping it is #9.
             switch try await local.apply(record, deletedAt: deletions[record.workID]) {
             case .applied: try updateOutbox { $0.dequeue(record.workID, ifStill: queued) }
             case .superseded: break
@@ -126,10 +179,70 @@ public actor CloudLibraryStore: LibraryStore {
             try await files.remove(ref)
             try updateOutbox { _ = $0.removals.remove(ref) }
         }
+        return rejected
     }
 
-    /// `.syncing` while local writes wait to upload, `.synced` once the queue is empty. Each subscriber
-    /// gets the current status first, then every change.
+    /// Syncs now, then again on every `requestSync`; after a failure it retries on its own, backing off
+    /// (`retryDelay`). Runs until its task is cancelled; run one at a time.
+    public func keepSynced() async {
+        var failures = 0
+        while !Task.isCancelled {
+            do {
+                try await sync()
+                failures = 0
+            } catch { failures += 1 }
+            await wait(upTo: failures == 0 ? nil : Self.retryDelay(afterFailures: failures))
+        }
+    }
+
+    /// Asks `keepSynced` to sync now, cutting short any retry wait. Call it on launch, on an iCloud account
+    /// change, and when iCloud says records changed.
+    public func requestSync() {
+        if let wakeUp {
+            self.wakeUp = nil
+            wakeUp.resume()
+        } else {
+            syncRequested = true
+        }
+    }
+
+    /// Waits for a `requestSync`, or until `delay` has passed on `clock`.
+    private func wait(upTo delay: Duration?) async {
+        if syncRequested {
+            syncRequested = false
+            return
+        }
+        waitID += 1
+        let id = waitID
+        let timer = delay.map { delay in
+            Task { [clock] in
+                guard (try? await clock.sleep(for: delay)) != nil else { return }
+                await self.endWait(id)
+            }
+        }
+        await withTaskCancellationHandler {
+            await withCheckedContinuation { wakeUp = $0 }
+        } onCancel: {
+            Task { await self.requestSync() }
+        }
+        timer?.cancel()
+    }
+
+    /// Ends wait `id` if it is still the one in progress.
+    private func endWait(_ id: Int) {
+        guard id == waitID, let wakeUp else { return }
+        self.wakeUp = nil
+        wakeUp.resume()
+    }
+
+    /// 10 s after the first failure, doubling each time, never more than 15 minutes.
+    static func retryDelay(afterFailures failures: Int) -> Duration {
+        min(.seconds(10) * (1 << min(failures - 1, 10)), .seconds(15 * 60))
+    }
+
+    /// `.syncing` while local writes wait to upload, `.synced` once the queue is empty; `.offline` or
+    /// `.iCloudFull` while iCloud can't take the queue, and `.error` after a sync skipped bad remote records,
+    /// until a sync finishes cleanly. Each subscriber gets the current status first, then every change.
     public nonisolated var syncStatus: AsyncStream<SyncStatus> { status.subscribe() }
 }
 
@@ -162,14 +275,22 @@ struct Outbox: Codable {
     }
 }
 
+extension WorkRecord {
+    /// The record rebuilt from its decoded Work alone, so no header field that disagrees with the payload is
+    /// trusted; throws if the payload isn't a valid `ComicSchema` Work or any FileRef in it fails `validate()`.
+    func verified() throws -> WorkRecord {
+        let work = try ComicSchema.decode(payload)
+        for ref in work.fileRefs { try ref.validate() }
+        return try WorkRecord(work)
+    }
+}
+
 extension LocalLibraryStore {
     enum Applied: Equatable { case applied, superseded, deleted(at: Date) }
 
-    /// Applies a remote record unless the Work was deleted at or after its `updatedAt` or the local copy beats
-    /// it, in one step so no local save lands in between.
-    func apply(_ record: WorkRecord, deletedAt: Date?) throws -> Applied {
-        // Decide and write from the decoded Work only, never from header fields that may disagree with it.
-        let incoming = try WorkRecord(ComicSchema.decode(record.payload))
+    /// Applies a `verified()` remote record unless the Work was deleted at or after its `updatedAt` or the local
+    /// copy beats it, in one step so no local save lands in between.
+    func apply(_ incoming: WorkRecord, deletedAt: Date?) throws -> Applied {
         if let deletedAt, incoming.updatedAt <= deletedAt { return .deleted(at: deletedAt) }
         if let mine = try work(incoming.workID), try !incoming.supersedes(mine) { return .superseded }
         try incoming.payload.write(to: layout.recordURL(incoming.workID), options: [.atomic, .completeFileProtection])

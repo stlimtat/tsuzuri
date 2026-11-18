@@ -338,4 +338,221 @@ import Testing
         #expect(await devices.records.all.isEmpty)
         #expect(await devices.files.all.isEmpty)
     }
+
+    @Test(.timeLimit(.minutes(1))) func withTheAccountUnavailableEverythingWorksLocallyAndUploadsOnceItIsBack() async throws {
+        let devices = try TwoDevices()
+        devices.accountA.set(.unavailable)
+        let image = try await devices.a.store(file: tempFile("page", ext: "png"), kind: .pageImage)
+        var work = comic(title: "Made offline", pageImage: image, source: image)
+        try await devices.a.save(work)
+        work.title = "Renamed offline"
+        work.updatedAt = work.updatedAt.addingTimeInterval(60)
+        try await devices.a.save(work)
+        let doomed = Work(kind: .book, title: "Deleted offline", readingDirection: .leftToRight)
+        try await devices.a.save(doomed)
+        try await devices.a.delete(doomed.id)
+
+        await #expect(throws: ICloudError.accountUnavailable) { try await devices.a.sync() }
+        #expect(try await devices.a.works(kind: nil) == [work])
+        #expect(try await devices.a.isDownloaded(image))
+        #expect(await devices.a.syncStatus.first { _ in true } == .offline)
+        #expect(await devices.records.all.isEmpty)
+
+        devices.accountA.set(.available)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        #expect(try await devices.b.works(kind: nil) == [work])
+        let page = try await devices.b.fileURL(for: image)
+        #expect(try String(contentsOf: page, encoding: .utf8) == "page")
+        #expect(await devices.a.syncStatus.first { _ in true } == .synced)
+    }
+
+    @Test(.timeLimit(.minutes(1))) func withICloudFullEverythingStaysLocalAndUploadsOnceThereIsSpace() async throws {
+        let devices = try TwoDevices()
+        devices.accountA.set(.full)
+        let image = try await devices.a.store(file: tempFile("page", ext: "png"), kind: .pageImage)
+        let work = comic(title: "Made while full", pageImage: image, source: image)
+        try await devices.a.save(work)
+
+        await #expect(throws: ICloudError.quotaExceeded) { try await devices.a.sync() }
+        #expect(try await devices.a.works(kind: nil) == [work])
+        #expect(await devices.a.syncStatus.first { _ in true } == .iCloudFull)
+        #expect(await devices.records.all.isEmpty)
+        #expect(await devices.files.all.isEmpty)
+
+        devices.accountA.set(.available)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        #expect(try await devices.b.works(kind: nil) == [work])
+        let page = try await devices.b.fileURL(for: image)
+        #expect(try String(contentsOf: page, encoding: .utf8) == "page")
+        #expect(await devices.a.syncStatus.first { _ in true } == .synced)
+    }
+
+    enum Tampering: CaseIterable, Sendable { case badJSON, invariantViolation, pathTraversalFileRef }
+
+    /// A tampered record for a Work B already has arrives first in a batch, ahead of a good record.
+    @Test(.timeLimit(.minutes(1)), arguments: Tampering.allCases)
+    func aTamperedRemoteRecordIsReportedAndSkippedAndTheRestOfTheBatchSyncs(_ tampering: Tampering) async throws {
+        let devices = try TwoDevices()
+        let image = try await devices.a.store(file: tempFile("page", ext: "png"), kind: .pageImage)
+        let work = comic(title: "Intact", pageImage: image, source: image)
+        try await devices.a.save(work)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        var tampered = work
+        tampered.title = "Tampered"
+        tampered.updatedAt = work.updatedAt.addingTimeInterval(60)
+        let payload: Data
+        switch tampering {
+        case .badJSON: payload = Data("{".utf8)
+        case .invariantViolation:
+            tampered.chapters[0].index = 5
+            payload = try ComicSchema.encode(tampered)
+        case .pathTraversalFileRef:
+            tampered.chapters[0].pages[0].imageRef = FileRef("pageImage/../../../etc/passwd")
+            payload = try ComicSchema.encode(tampered)
+        }
+        let good = Work(kind: .book, title: "Good", readingDirection: .leftToRight)
+        try await devices.records.save([
+            WorkRecord(workID: work.id, schemaVersion: ComicSchema.currentVersion, updatedAt: tampered.updatedAt, payload: payload),
+            WorkRecord(good),
+        ])
+
+        try await devices.b.sync()
+
+        #expect(try await devices.b.works(kind: nil) == [work, good])
+        let status = await devices.b.syncStatus.first { _ in true }
+        guard case .error = status else { Issue.record("status is \(String(describing: status)), not .error"); return }
+    }
+
+    @Test(.timeLimit(.minutes(1))) func retriesBackOffExponentiallyUpToFifteenMinutes() async throws {
+        let devices = try TwoDevices()
+        devices.accountA.set(.unavailable)
+        let syncing = Task { await devices.a.keepSynced() }
+        defer { syncing.cancel() }
+
+        var sleeps = devices.clock.sleeps.makeAsyncIterator()
+        var waits: [Duration] = []
+        for _ in 0..<9 {
+            let wait = try #require(await sleeps.next())
+            waits.append(wait)
+            devices.clock.advance(by: wait)
+        }
+
+        #expect(waits == [10, 20, 40, 80, 160, 320, 640, 900, 900].map { .seconds($0) })
+    }
+
+    /// The app calls `requestSync` on an account-change notification.
+    @Test(.timeLimit(.minutes(1))) func whenTheAccountComesBackTheQueueUploadsWithoutWaitingOutTheBackoff() async throws {
+        let devices = try TwoDevices()
+        devices.accountA.set(.unavailable)
+        let work = Work(kind: .book, title: "Queued offline", readingDirection: .leftToRight)
+        try await devices.a.save(work)
+        let syncing = Task { await devices.a.keepSynced() }
+        defer { syncing.cancel() }
+        var sleeps = devices.clock.sleeps.makeAsyncIterator()
+        _ = await sleeps.next()
+
+        devices.accountA.set(.available)
+        await devices.a.requestSync()
+        for await status in devices.a.syncStatus where status == .synced { break }
+        try await devices.b.sync()
+
+        #expect(try await devices.b.works(kind: nil) == [work])
+    }
+
+    /// After a sync succeeds nothing waits on the clock, and the next failure backs off from the start.
+    @Test(.timeLimit(.minutes(1))) func aSuccessfulSyncStartsTheBackoffOver() async throws {
+        let devices = try TwoDevices()
+        devices.accountA.set(.unavailable)
+        let syncing = Task { await devices.a.keepSynced() }
+        defer { syncing.cancel() }
+        var sleeps = devices.clock.sleeps.makeAsyncIterator()
+        for _ in 0..<3 { devices.clock.advance(by: try #require(await sleeps.next())) }
+        devices.accountA.set(.available)
+        await devices.a.requestSync()
+        for await status in devices.a.syncStatus where status == .synced { break }
+
+        devices.accountA.set(.unavailable)
+        await devices.a.requestSync()
+        let first = try #require(await sleeps.next())
+        devices.clock.advance(by: first)
+        let second = try #require(await sleeps.next())
+
+        #expect([first, second] == [.seconds(10), .seconds(20)])
+    }
+
+    /// A second sync started while one is uploading waits for it, so nothing is uploaded twice.
+    @Test(.timeLimit(.minutes(1))) func aSyncStartedDuringAnotherWaitsForIt() async throws {
+        let devices = try TwoDevices()
+        try await devices.a.save(Work(kind: .book, title: "Once", readingDirection: .leftToRight))
+        let a = devices.a, second = Box<Task<Void, Error>>()
+        await devices.records.onUpload {
+            await second.set(Task { try await a.sync() })
+            for _ in 0..<1000 { await Task.yield() }
+        }
+
+        try await devices.a.sync()
+        try await #require(await second.value).value
+
+        #expect(await devices.records.uploads == 1)
+    }
+
+    /// The tombstone uploads but removing the Work's files fails; those removals are still queued after a relaunch.
+    @Test(.timeLimit(.minutes(1))) func fileRemovalsLeftByAFailedSyncStayQueuedAcrossARelaunch() async throws {
+        let devices = try TwoDevices()
+        let image = try await devices.a.store(file: tempFile("page", ext: "png"), kind: .pageImage)
+        let work = comic(title: "Doomed", pageImage: image, source: image)
+        try await devices.a.save(work)
+        try await devices.a.sync()
+        try await devices.a.delete(work.id)
+        await devices.files.refuseRemovals(true)
+        await #expect(throws: ICloudError.accountUnavailable) { try await devices.a.sync() }
+        #expect(await devices.records.all.isEmpty)
+
+        let relaunched = try devices.reopenA()
+        #expect(await relaunched.syncStatus.first { _ in true } == .syncing)
+        await devices.files.refuseRemovals(false)
+        try await relaunched.sync()
+
+        #expect(await devices.files.all.isEmpty)
+        #expect(await relaunched.syncStatus.first { _ in true } == .synced)
+    }
+
+    /// A request that comes while a sync is running isn't lost: another sync follows and uploads the new save.
+    @Test(.timeLimit(.minutes(1))) func aSyncRequestedWhileSyncingRunsAnotherSync() async throws {
+        let devices = try TwoDevices()
+        try await devices.a.save(Work(kind: .book, title: "First", readingDirection: .leftToRight))
+        let later = Work(kind: .book, title: "Saved during the upload", readingDirection: .leftToRight)
+        let a = devices.a
+        await devices.records.onUpload {
+            try? await a.save(later)
+            await a.requestSync()
+        }
+        let syncing = Task { await devices.a.keepSynced() }
+        defer { syncing.cancel() }
+
+        while await !devices.records.all.contains(where: { $0.workID == later.id }) { await Task.yield() }
+    }
+
+    /// The record's header names one Work but its payload is another: only the payload is trusted.
+    @Test func aRemoteRecordIsAppliedAsItsPayloadSaysNotItsHeader() async throws {
+        let devices = try TwoDevices()
+        let work = Work(kind: .book, title: "Intact", readingDirection: .leftToRight)
+        try await devices.a.save(work)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        var other = Work(kind: .book, title: "Other", readingDirection: .leftToRight)
+        other.updatedAt = work.updatedAt.addingTimeInterval(60)
+        try await devices.records.save([WorkRecord(workID: work.id, schemaVersion: ComicSchema.currentVersion,
+                                                   updatedAt: other.updatedAt, payload: ComicSchema.encode(other))])
+        try await devices.b.sync()
+
+        #expect(Set(try await devices.b.works(kind: nil).map(\.id)) == [work.id, other.id])
+    }
 }
