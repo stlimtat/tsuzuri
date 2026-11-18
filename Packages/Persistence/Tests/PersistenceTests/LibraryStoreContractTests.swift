@@ -145,6 +145,14 @@ func comic(title: String, pageImage: FileRef, source: FileRef) -> Work {
     }
 
     @Test(arguments: StoreFactory.all)
+    func evictionRejectsFileRefsThatEscapeTheLibrary(_ factory: StoreFactory) async throws {
+        let store = try factory.make().store
+        for id in Self.escapingFileRefs {
+            await #expect(throws: PersistenceError.invalidFileRef(id)) { try await store.evictLocalCopy(FileRef(id)) }
+        }
+    }
+
+    @Test(arguments: StoreFactory.all)
     func evictionNeverDropsTheOnlyCopy(_ factory: StoreFactory) async throws {
         let store = try factory.make().store
         let ref = try await store.store(file: tempFile("r", ext: "mp4"), kind: .renderVideo)

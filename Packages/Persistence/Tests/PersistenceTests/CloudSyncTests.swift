@@ -150,4 +150,192 @@ import Testing
         #expect(try await devices.b.works(kind: nil) == [work])
         _ = try await devices.b.fileURL(for: image)
     }
+
+    @Test func aDeleteOnARemovesTheWorkAndItsFilesOnBAndInICloud() async throws {
+        let devices = try TwoDevices()
+        let image = try await devices.a.store(file: tempFile("page", ext: "png"), kind: .pageImage)
+        let source = try await devices.a.store(file: tempFile("archive", ext: "cbz"), kind: .source)
+        let work = comic(title: "Doomed", pageImage: image, source: source)
+        let kept = Work(kind: .book, title: "Kept", readingDirection: .leftToRight)
+        try await devices.a.save(work)
+        try await devices.a.save(kept)
+        try await devices.a.sync()
+        try await devices.b.sync()
+        _ = try await devices.b.fileURL(for: image)
+
+        try await devices.a.delete(work.id)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        #expect(try await devices.b.works(kind: nil) == [kept])
+        #expect(try await devices.b.isDownloaded(image) == false)
+        #expect(await devices.records.all.map(\.workID) == [kept.id])
+        #expect(await devices.files.all.isEmpty)
+        #expect(await devices.a.syncStatus.first { _ in true } == .synced)
+    }
+
+    /// B edits the Work while offline (before A's delete); once B is back, the tombstone wins on both.
+    @Test(.timeLimit(.minutes(1))) func aSaveQueuedOnBWhileOfflineDoesNotBringADeletedWorkBack() async throws {
+        let devices = try TwoDevices()
+        var work = Work(kind: .book, title: "Doomed", readingDirection: .leftToRight)
+        work.updatedAt = Date().addingTimeInterval(-3600)
+        try await devices.a.save(work)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        work.title = "Edited on B while offline"
+        work.updatedAt = work.updatedAt.addingTimeInterval(60)
+        try await devices.b.save(work)
+        try await devices.a.delete(work.id)
+        try await devices.a.sync()
+        try await devices.b.sync()
+        try await devices.a.sync()
+
+        #expect(try await devices.a.works(kind: nil).isEmpty)
+        #expect(try await devices.b.works(kind: nil).isEmpty)
+        #expect(await devices.records.all.isEmpty)
+        #expect(await devices.b.syncStatus.first { _ in true } == .synced)
+    }
+
+    /// The tombstone only covers saves up to `deletedAt`; a save made after the delete is a new version.
+    @Test func aSaveOnBLaterThanTheDeleteSurvivesOnBoth() async throws {
+        let devices = try TwoDevices()
+        var work = Work(kind: .book, title: "Deleted", readingDirection: .leftToRight)
+        try await devices.a.save(work)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        work.title = "Saved on B after the delete"
+        work.updatedAt = Date().addingTimeInterval(3600)
+        try await devices.b.save(work)
+        try await devices.a.delete(work.id)
+        try await devices.a.sync()
+        try await devices.b.sync()
+        try await devices.a.sync()
+
+        #expect(try await devices.a.works(kind: nil) == [work])
+        #expect(try await devices.b.works(kind: nil) == [work])
+    }
+
+    /// B's upload of an older save lands just after A's tombstone, replacing it in iCloud; A drops that save
+    /// and puts the tombstone back, so B deletes the Work too.
+    /// With `clockAhead`, the Work's `updatedAt` is in the future, so the delete is stamped with it and B's
+    /// edit, made with the same `updatedAt`, is exactly as late as the delete: still dropped.
+    @Test(.timeLimit(.minutes(1)), arguments: [false, true])
+    func aStaleSaveUploadedOverTheTombstoneIsDroppedEverywhere(clockAhead: Bool) async throws {
+        let devices = try TwoDevices()
+        var work = Work(kind: .book, title: "Doomed", readingDirection: .leftToRight)
+        work.updatedAt = Date().addingTimeInterval(clockAhead ? 3600 : -3600)
+        try await devices.a.save(work)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        work.title = "Edited on B"
+        if !clockAhead { work.updatedAt = work.updatedAt.addingTimeInterval(60) }
+        try await devices.b.save(work)
+        let a = devices.a, id = work.id
+        await devices.records.onUpload {
+            try? await a.delete(id)
+            try? await a.sync()
+        }
+        try await devices.b.sync()
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        #expect(try await devices.a.works(kind: nil).isEmpty)
+        #expect(try await devices.b.works(kind: nil).isEmpty)
+        #expect(await devices.records.all.isEmpty)
+    }
+
+    /// A save already in flight when B learns of the delete, e.g. an autosave of the old version, is dropped.
+    @Test func aLocalSaveNoLaterThanTheDeleteIsDropped() async throws {
+        let devices = try TwoDevices()
+        let work = Work(kind: .book, title: "Doomed", readingDirection: .leftToRight)
+        try await devices.a.save(work)
+        try await devices.a.sync()
+        try await devices.b.sync()
+        try await devices.a.delete(work.id)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        try await devices.b.save(work)
+        try await devices.b.sync()
+        try await devices.a.sync()
+
+        #expect(try await devices.a.works(kind: nil).isEmpty)
+        #expect(try await devices.b.works(kind: nil).isEmpty)
+    }
+
+    @Test func aDeleteStillDropsOlderSavesAfterARelaunch() async throws {
+        let devices = try TwoDevices()
+        let work = Work(kind: .book, title: "Doomed", readingDirection: .leftToRight)
+        try await devices.a.save(work)
+        try await devices.a.delete(work.id)
+        try await devices.a.sync()
+
+        let relaunched = try devices.reopenA()
+        try await relaunched.save(work)
+
+        #expect(try await relaunched.works(kind: nil).isEmpty)
+    }
+
+    @Test func evictingAnUploadedFileFreesItAndFileURLDownloadsItAgain() async throws {
+        let devices = try TwoDevices()
+        let ref = try await devices.a.store(file: tempFile("render", ext: "mp4"), kind: .renderVideo)
+        try await devices.a.sync()
+
+        try await devices.a.evictLocalCopy(ref)
+
+        #expect(try await devices.a.isDownloaded(ref) == false)
+        let url = try await devices.a.fileURL(for: ref)
+        #expect(try String(contentsOf: url, encoding: .utf8) == "render")
+        #expect(try await devices.a.isDownloaded(ref))
+    }
+
+    @Test func aFileStillUploadingToICloudCannotBeEvicted() async throws {
+        let devices = try TwoDevices()
+        await devices.files.holdUploads()
+        let ref = try await devices.a.store(file: tempFile("render", ext: "mp4"), kind: .renderVideo)
+        try await devices.a.sync()
+
+        await #expect(throws: PersistenceError.notSafelyInCloud(ref)) { try await devices.a.evictLocalCopy(ref) }
+        #expect(try await devices.a.isDownloaded(ref))
+    }
+
+    /// A Work saved on a device whose clock runs ahead is still covered by its delete, on both devices.
+    @Test func deletingAWorkStampedInTheFutureStillDeletesItEverywhere() async throws {
+        let devices = try TwoDevices()
+        var work = Work(kind: .book, title: "From the future", readingDirection: .leftToRight)
+        work.updatedAt = Date().addingTimeInterval(3600)
+        try await devices.a.save(work)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        try await devices.a.delete(work.id)
+        try await devices.a.save(work)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        #expect(try await devices.a.works(kind: nil).isEmpty)
+        #expect(try await devices.b.works(kind: nil).isEmpty)
+    }
+
+    @Test(.timeLimit(.minutes(1))) func aWorkDeletedBeforeItEverSyncedLeavesNothingInICloud() async throws {
+        let devices = try TwoDevices()
+        let synced = Work(kind: .book, title: "Synced", readingDirection: .leftToRight)
+        try await devices.a.save(synced)
+        try await devices.a.sync()
+        try await devices.a.delete(synced.id)
+        #expect(await devices.a.syncStatus.first { _ in true } == .syncing)
+
+        let image = try await devices.a.store(file: tempFile("page", ext: "png"), kind: .pageImage)
+        let work = comic(title: "Never synced", pageImage: image, source: image)
+        try await devices.a.save(work)
+        try await devices.a.delete(work.id)
+        try await devices.a.sync()
+
+        #expect(await devices.a.syncStatus.first { _ in true } == .synced)
+        #expect(await devices.records.all.isEmpty)
+        #expect(await devices.files.all.isEmpty)
+    }
 }

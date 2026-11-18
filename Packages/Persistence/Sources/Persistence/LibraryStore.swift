@@ -70,12 +70,19 @@ public actor LocalLibraryStore: LibraryStore {
         }
     }
 
-    public func delete(_ workID: Work.ID) async throws {
-        let url = layout.recordURL(workID)
-        guard FileManager.default.fileExists(atPath: url.path) else { throw PersistenceError.notFound(workID.uuidString) }
-        let work = try ComicSchema.decode(Data(contentsOf: url))
+    public func delete(_ workID: Work.ID) async throws { _ = try remove(workID) }
+
+    /// Deletes the Work and its files, returning what was deleted.
+    func remove(_ workID: Work.ID) throws -> Work {
+        guard let work = try work(workID) else { throw PersistenceError.notFound(workID.uuidString) }
+        try removeWork(work)
+        return work
+    }
+
+    /// Removes the Work's record, then every file it references.
+    func removeWork(_ work: Work) throws {
         // Record first: a failure part-way leaves orphaned files, never a Work pointing at missing files.
-        try FileManager.default.removeItem(at: url)
+        try FileManager.default.removeItem(at: layout.recordURL(work.id))
         for ref in work.fileRefs {
             let file = try layout.fileURL(ref)
             if FileManager.default.fileExists(atPath: file.path) { try FileManager.default.removeItem(at: file) }
