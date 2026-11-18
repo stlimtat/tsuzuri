@@ -1,0 +1,260 @@
+{
+  "expectedCut" : {
+    "x" : 0.5
+  },
+  "id" : "p19-scan-bookshop",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "えきまえ",
+              "start" : 0
+            },
+            {
+              "length" : 1,
+              "reading" : "あたら",
+              "start" : 3
+            },
+            {
+              "length" : 2,
+              "reading" : "ほんや",
+              "start" : 6
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.043,
+              0.0476
+            ],
+            [
+              0.388,
+              0.0476
+            ],
+            [
+              0.388,
+              0.227
+            ],
+            [
+              0.043,
+              0.227
+            ]
+          ],
+          "sfx" : false,
+          "text" : "駅前に新しい本屋ができた。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.02
+        ],
+        [
+          0.48,
+          0.02
+        ],
+        [
+          0.48,
+          0.48
+        ],
+        [
+          0.02,
+          0.48
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "まんが",
+              "start" : 0
+            },
+            {
+              "length" : 1,
+              "reading" : "たな",
+              "start" : 3
+            },
+            {
+              "length" : 1,
+              "reading" : "ひろ",
+              "start" : 5
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.089,
+              0.75
+            ],
+            [
+              0.457,
+              0.75
+            ],
+            [
+              0.457,
+              0.934
+            ],
+            [
+              0.089,
+              0.934
+            ]
+          ],
+          "sfx" : false,
+          "text" : "漫画の棚が広いね。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.52
+        ],
+        [
+          0.48,
+          0.52
+        ],
+        [
+          0.48,
+          0.98
+        ],
+        [
+          0.02,
+          0.98
+        ]
+      ],
+      "readingIndex" : 1
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "さっか",
+              "start" : 2
+            },
+            {
+              "length" : 1,
+              "reading" : "し",
+              "start" : 5
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.543,
+              0.0476
+            ],
+            [
+              0.888,
+              0.0476
+            ],
+            [
+              0.888,
+              0.227
+            ],
+            [
+              0.543,
+              0.227
+            ]
+          ],
+          "sfx" : false,
+          "text" : "この作家、知ってる？",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.52,
+          0.02
+        ],
+        [
+          0.98,
+          0.02
+        ],
+        [
+          0.98,
+          0.48
+        ],
+        [
+          0.52,
+          0.48
+        ]
+      ],
+      "readingIndex" : 2
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "ぜんかん",
+              "start" : 3
+            },
+            {
+              "length" : 1,
+              "reading" : "も",
+              "start" : 5
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.589,
+              0.75
+            ],
+            [
+              0.957,
+              0.75
+            ],
+            [
+              0.957,
+              0.934
+            ],
+            [
+              0.589,
+              0.934
+            ]
+          ],
+          "sfx" : false,
+          "text" : "うん、全巻持ってるよ。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.52,
+          0.52
+        ],
+        [
+          0.98,
+          0.52
+        ],
+        [
+          0.98,
+          0.98
+        ],
+        [
+          0.52,
+          0.98
+        ]
+      ],
+      "readingIndex" : 3
+    }
+  ],
+  "pixelSize" : {
+    "height" : 900,
+    "width" : 1200
+  },
+  "readingDirection" : "leftToRight",
+  "schemaVersion" : 1
+}

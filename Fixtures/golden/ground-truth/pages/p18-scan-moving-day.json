@@ -1,0 +1,282 @@
+{
+  "expectedCut" : {
+    "x" : 0.5
+  },
+  "id" : "p18-scan-moving-day",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "あたら",
+              "start" : 3
+            },
+            {
+              "length" : 2,
+              "reading" : "へや",
+              "start" : 6
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.8052,
+              0.0476
+            ],
+            [
+              0.9432,
+              0.0476
+            ],
+            [
+              0.9432,
+              0.4524
+            ],
+            [
+              0.8052,
+              0.4524
+            ]
+          ],
+          "sfx" : false,
+          "text" : "ここが新しい部屋？",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.52,
+          0.02
+        ],
+        [
+          0.98,
+          0.02
+        ],
+        [
+          0.98,
+          0.48
+        ],
+        [
+          0.52,
+          0.48
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "ひろ",
+              "start" : 0
+            },
+            {
+              "length" : 1,
+              "reading" : "あか",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.8052,
+              0.5476
+            ],
+            [
+              0.9432,
+              0.5476
+            ],
+            [
+              0.9432,
+              0.9524
+            ],
+            [
+              0.8052,
+              0.9524
+            ]
+          ],
+          "sfx" : false,
+          "text" : "広くて明るいね。",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.52,
+          0.52
+        ],
+        [
+          0.98,
+          0.52
+        ],
+        [
+          0.98,
+          0.98
+        ],
+        [
+          0.52,
+          0.98
+        ]
+      ],
+      "readingIndex" : 1
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "まど",
+              "start" : 0
+            },
+            {
+              "length" : 1,
+              "reading" : "かわ",
+              "start" : 3
+            },
+            {
+              "length" : 1,
+              "reading" : "み",
+              "start" : 5
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.3052,
+              0.0476
+            ],
+            [
+              0.4432,
+              0.0476
+            ],
+            [
+              0.4432,
+              0.4524
+            ],
+            [
+              0.3052,
+              0.4524
+            ]
+          ],
+          "sfx" : false,
+          "text" : "窓から川が見えるよ。",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.02
+        ],
+        [
+          0.48,
+          0.02
+        ],
+        [
+          0.48,
+          0.48
+        ],
+        [
+          0.02,
+          0.48
+        ]
+      ],
+      "readingIndex" : 2
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "にもつ",
+              "start" : 0
+            },
+            {
+              "length" : 2,
+              "reading" : "かたづ",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.3052,
+              0.5476
+            ],
+            [
+              0.4432,
+              0.5476
+            ],
+            [
+              0.4432,
+              0.9524
+            ],
+            [
+              0.3052,
+              0.9524
+            ]
+          ],
+          "sfx" : false,
+          "text" : "荷物を片付けよう。",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.066,
+              0.566
+            ],
+            [
+              0.181,
+              0.566
+            ],
+            [
+              0.181,
+              0.934
+            ],
+            [
+              0.066,
+              0.934
+            ]
+          ],
+          "sfx" : true,
+          "text" : "ガサガサ",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.52
+        ],
+        [
+          0.48,
+          0.52
+        ],
+        [
+          0.48,
+          0.98
+        ],
+        [
+          0.02,
+          0.98
+        ]
+      ],
+      "readingIndex" : 3
+    }
+  ],
+  "pixelSize" : {
+    "height" : 900,
+    "width" : 1200
+  },
+  "readingDirection" : "rightToLeft",
+  "schemaVersion" : 1
+}

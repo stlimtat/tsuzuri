@@ -1,0 +1,106 @@
+{
+  "id" : "s02-two-page-panel",
+  "pageIDs" : [
+    "p31-spread2-left",
+    "p32-spread2-right"
+  ],
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "ほしみ",
+              "start" : 5
+            },
+            {
+              "length" : 1,
+              "reading" : "おか",
+              "start" : 8
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.0488,
+              0.0504
+            ],
+            [
+              0.3848,
+              0.0504
+            ],
+            [
+              0.3848,
+              0.172
+            ],
+            [
+              0.0488,
+              0.172
+            ]
+          ],
+          "sfx" : false,
+          "text" : "ようこそ、星見の丘へ！",
+          "textOrientation" : "horizontal"
+        },
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "そら",
+              "start" : 3
+            },
+            {
+              "length" : 1,
+              "reading" : "ひろ",
+              "start" : 5
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.6152,
+              0.21
+            ],
+            [
+              0.932,
+              0.21
+            ],
+            [
+              0.932,
+              0.343
+            ],
+            [
+              0.6152,
+              0.343
+            ]
+          ],
+          "sfx" : false,
+          "text" : "わあ、空が広い！",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.02
+        ],
+        [
+          0.98,
+          0.02
+        ],
+        [
+          0.98,
+          0.4
+        ],
+        [
+          0.02,
+          0.4
+        ]
+      ],
+      "readingIndex" : 0
+    }
+  ],
+  "readingDirection" : "leftToRight",
+  "schemaVersion" : 1
+}

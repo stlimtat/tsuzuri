@@ -1,0 +1,65 @@
+{
+  "id" : "p31-spread2-left",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "は",
+              "start" : 7
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.086,
+              0.463
+            ],
+            [
+              0.592,
+              0.463
+            ],
+            [
+              0.592,
+              0.584
+            ],
+            [
+              0.086,
+              0.584
+            ]
+          ],
+          "sfx" : false,
+          "text" : "テントはどこに張る？",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.04,
+          0.43
+        ],
+        [
+          0.96,
+          0.43
+        ],
+        [
+          0.96,
+          0.98
+        ],
+        [
+          0.04,
+          0.98
+        ]
+      ],
+      "readingIndex" : 1
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "leftToRight",
+  "schemaVersion" : 1
+}

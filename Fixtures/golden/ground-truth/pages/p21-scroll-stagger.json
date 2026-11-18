@@ -1,0 +1,184 @@
+{
+  "id" : "p21-scroll-stagger",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "あめ",
+              "start" : 0
+            },
+            {
+              "length" : 1,
+              "reading" : "や",
+              "start" : 2
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.0864,
+              0.048
+            ],
+            [
+              0.5736,
+              0.048
+            ],
+            [
+              0.5736,
+              0.132
+            ],
+            [
+              0.0864,
+              0.132
+            ]
+          ],
+          "sfx" : false,
+          "text" : "雨、止まないね。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.04,
+          0.02
+        ],
+        [
+          0.62,
+          0.02
+        ],
+        [
+          0.62,
+          0.3
+        ],
+        [
+          0.04,
+          0.3
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "かさ",
+              "start" : 0
+            },
+            {
+              "length" : 2,
+              "reading" : "いっしょ",
+              "start" : 2
+            },
+            {
+              "length" : 1,
+              "reading" : "はい",
+              "start" : 5
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.4264,
+              0.484
+            ],
+            [
+              0.9136,
+              0.484
+            ],
+            [
+              0.9136,
+              0.568
+            ],
+            [
+              0.4264,
+              0.568
+            ]
+          ],
+          "sfx" : false,
+          "text" : "傘、一緒に入る？",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.38,
+          0.33
+        ],
+        [
+          0.96,
+          0.33
+        ],
+        [
+          0.96,
+          0.61
+        ],
+        [
+          0.38,
+          0.61
+        ]
+      ],
+      "readingIndex" : 1
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.098,
+              0.691
+            ],
+            [
+              0.562,
+              0.691
+            ],
+            [
+              0.562,
+              0.776
+            ],
+            [
+              0.098,
+              0.776
+            ]
+          ],
+          "sfx" : false,
+          "text" : "……ありがとう。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.04,
+          0.64
+        ],
+        [
+          0.62,
+          0.64
+        ],
+        [
+          0.62,
+          0.98
+        ],
+        [
+          0.04,
+          0.98
+        ]
+      ],
+      "readingIndex" : 2
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "verticalScroll",
+  "schemaVersion" : 1
+}

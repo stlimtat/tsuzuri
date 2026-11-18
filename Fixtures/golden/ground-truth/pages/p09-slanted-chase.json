@@ -1,0 +1,281 @@
+{
+  "id" : "p09-slanted-chase",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "ま",
+              "start" : 0
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.84,
+              0.05
+            ],
+            [
+              0.95,
+              0.05
+            ],
+            [
+              0.95,
+              0.22
+            ],
+            [
+              0.84,
+              0.22
+            ]
+          ],
+          "sfx" : false,
+          "text" : "待て！",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.1,
+              0.05
+            ],
+            [
+              0.3,
+              0.05
+            ],
+            [
+              0.3,
+              0.31
+            ],
+            [
+              0.1,
+              0.31
+            ]
+          ],
+          "sfx" : true,
+          "text" : "ダダダッ",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.02
+        ],
+        [
+          0.98,
+          0.02
+        ],
+        [
+          0.98,
+          0.31
+        ],
+        [
+          0.02,
+          0.34
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "に",
+              "start" : 0
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.7,
+              0.37
+            ],
+            [
+              0.88,
+              0.37
+            ],
+            [
+              0.88,
+              0.62
+            ],
+            [
+              0.7,
+              0.62
+            ]
+          ],
+          "sfx" : false,
+          "text" : "逃げろ、こっちだ！",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "い",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.15,
+              0.4
+            ],
+            [
+              0.31,
+              0.4
+            ],
+            [
+              0.31,
+              0.62
+            ],
+            [
+              0.15,
+              0.62
+            ]
+          ],
+          "sfx" : false,
+          "text" : "どこへ行くの？",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.36
+        ],
+        [
+          0.98,
+          0.33
+        ],
+        [
+          0.98,
+          0.64
+        ],
+        [
+          0.02,
+          0.64
+        ]
+      ],
+      "readingIndex" : 1
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "おくじょう",
+              "start" : 0
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.8,
+              0.69
+            ],
+            [
+              0.93,
+              0.69
+            ],
+            [
+              0.93,
+              0.92
+            ],
+            [
+              0.8,
+              0.92
+            ]
+          ],
+          "sfx" : false,
+          "text" : "屋上へ！",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.49,
+          0.66
+        ],
+        [
+          0.98,
+          0.66
+        ],
+        [
+          0.98,
+          0.98
+        ],
+        [
+          0.46,
+          0.98
+        ]
+      ],
+      "readingIndex" : 2
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.08,
+              0.7
+            ],
+            [
+              0.26,
+              0.7
+            ],
+            [
+              0.26,
+              0.95
+            ],
+            [
+              0.08,
+              0.95
+            ]
+          ],
+          "sfx" : true,
+          "text" : "バタン",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.66
+        ],
+        [
+          0.48,
+          0.66
+        ],
+        [
+          0.45,
+          0.98
+        ],
+        [
+          0.02,
+          0.98
+        ]
+      ],
+      "readingIndex" : 3
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "rightToLeft",
+  "schemaVersion" : 1
+}

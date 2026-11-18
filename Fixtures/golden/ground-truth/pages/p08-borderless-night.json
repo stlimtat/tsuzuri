@@ -1,0 +1,237 @@
+{
+  "id" : "p08-borderless-night",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "こんや",
+              "start" : 0
+            },
+            {
+              "length" : 1,
+              "reading" : "ほし",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.05,
+              0.045
+            ],
+            [
+              0.55,
+              0.045
+            ],
+            [
+              0.55,
+              0.195
+            ],
+            [
+              0.05,
+              0.195
+            ]
+          ],
+          "sfx" : false,
+          "text" : "今夜は星がよく見えるね。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0.3
+        ],
+        [
+          0,
+          0.3
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 4,
+              "reading" : "ほくとしちせい",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.04,
+              0.3504
+            ],
+            [
+              0.46,
+              0.3504
+            ],
+            [
+              0.46,
+              0.4796
+            ],
+            [
+              0.04,
+              0.4796
+            ]
+          ],
+          "sfx" : false,
+          "text" : "あれが北斗七星？",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0,
+          0.32
+        ],
+        [
+          0.5,
+          0.32
+        ],
+        [
+          0.5,
+          0.7
+        ],
+        [
+          0,
+          0.7
+        ]
+      ],
+      "readingIndex" : 1
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "ざ",
+              "start" : 9
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.53,
+              0.51
+            ],
+            [
+              0.97,
+              0.51
+            ],
+            [
+              0.97,
+              0.662
+            ],
+            [
+              0.53,
+              0.662
+            ]
+          ],
+          "sfx" : false,
+          "text" : "ううん、カシオペヤ座だよ。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.5,
+          0.32
+        ],
+        [
+          1,
+          0.32
+        ],
+        [
+          1,
+          0.7
+        ],
+        [
+          0.5,
+          0.7
+        ]
+      ],
+      "readingIndex" : 2
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "あした",
+              "start" : 0
+            },
+            {
+              "length" : 1,
+              "reading" : "は",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.3,
+              0.776
+            ],
+            [
+              0.85,
+              0.776
+            ],
+            [
+              0.85,
+              0.93
+            ],
+            [
+              0.3,
+              0.93
+            ]
+          ],
+          "sfx" : false,
+          "text" : "明日も晴れるといいな。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0,
+          0.72
+        ],
+        [
+          1,
+          0.72
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "readingIndex" : 3
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "leftToRight",
+  "schemaVersion" : 1
+}

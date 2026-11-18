@@ -1,0 +1,274 @@
+{
+  "id" : "p20-scroll-stack",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "あさ",
+              "start" : 0
+            },
+            {
+              "length" : 3,
+              "reading" : "みっかめ",
+              "start" : 8
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.086,
+              0.04
+            ],
+            [
+              0.608,
+              0.04
+            ],
+            [
+              0.608,
+              0.16
+            ],
+            [
+              0.086,
+              0.16
+            ]
+          ],
+          "sfx" : false,
+          "text" : "朝のランニング、三日目。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.05,
+          0.02
+        ],
+        [
+          0.95,
+          0.02
+        ],
+        [
+          0.95,
+          0.22
+        ],
+        [
+          0.05,
+          0.22
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "きょう",
+              "start" : 0
+            },
+            {
+              "length" : 2,
+              "reading" : "かわぞ",
+              "start" : 3
+            },
+            {
+              "length" : 1,
+              "reading" : "はし",
+              "start" : 7
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.374,
+              0.33
+            ],
+            [
+              0.914,
+              0.33
+            ],
+            [
+              0.914,
+              0.45
+            ],
+            [
+              0.374,
+              0.45
+            ]
+          ],
+          "sfx" : false,
+          "text" : "今日は川沿いを走ろう。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.05,
+          0.27
+        ],
+        [
+          0.95,
+          0.27
+        ],
+        [
+          0.95,
+          0.47
+        ],
+        [
+          0.05,
+          0.47
+        ]
+      ],
+      "readingIndex" : 1
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.077,
+              0.536
+            ],
+            [
+              0.545,
+              0.536
+            ],
+            [
+              0.545,
+              0.63
+            ],
+            [
+              0.077,
+              0.63
+            ]
+          ],
+          "sfx" : false,
+          "text" : "おはようございます！",
+          "textOrientation" : "horizontal"
+        },
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "はや",
+              "start" : 5
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.5,
+              0.62
+            ],
+            [
+              0.923,
+              0.62
+            ],
+            [
+              0.923,
+              0.71
+            ],
+            [
+              0.5,
+              0.71
+            ]
+          ],
+          "sfx" : false,
+          "text" : "おはよう、早いね。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.05,
+          0.52
+        ],
+        [
+          0.95,
+          0.52
+        ],
+        [
+          0.95,
+          0.72
+        ],
+        [
+          0.05,
+          0.72
+        ]
+      ],
+      "readingIndex" : 2
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "あした",
+              "start" : 2
+            },
+            {
+              "length" : 1,
+              "reading" : "あ",
+              "start" : 5
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.23,
+              0.812
+            ],
+            [
+              0.788,
+              0.812
+            ],
+            [
+              0.788,
+              0.938
+            ],
+            [
+              0.23,
+              0.938
+            ]
+          ],
+          "sfx" : false,
+          "text" : "また明日も会えるかな。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.05,
+          0.77
+        ],
+        [
+          0.95,
+          0.77
+        ],
+        [
+          0.95,
+          0.98
+        ],
+        [
+          0.05,
+          0.98
+        ]
+      ],
+      "readingIndex" : 3
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "verticalScroll",
+  "schemaVersion" : 1
+}

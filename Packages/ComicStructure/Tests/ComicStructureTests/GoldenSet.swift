@@ -26,13 +26,22 @@ struct GoldenSet {
         var shape: Polygon { Polygon(polygon.map { Point($0[0], $0[1]) }) }
     }
 
-    /// `ground-truth/pages/<id>.json`. Panels are in Page coordinates.
+    /// Where a two-pages-in-one scan must be cut: vertically at `x` or horizontally at `y`.
+    struct GoldenCut: Codable {
+        let x: Double?
+        let y: Double?
+        var cut: Cut? { x.map { .vertical(x: $0) } ?? y.map { .horizontal(y: $0) } }
+    }
+
+    /// `ground-truth/pages/<id>.json`. Panels are in Page coordinates. A two-pages-in-one scan has an `expectedCut`,
+    /// and its reading indexes count across the whole scan.
     struct GoldenPage: Codable, Versioned {
         let schemaVersion: Int
         let id: String
         let pixelSize: PixelSize
         let readingDirection: ReadingDirection
         let panels: [GoldenPanel]
+        let expectedCut: GoldenCut?
     }
 
     /// `ground-truth/spreads/<id>.json`: two adjacent Pages, in Page order, and their two-Page Panels,
@@ -61,7 +70,15 @@ struct GoldenSet {
         case panelNotConvex(String)
         case bubbleOutsidePanel(String)
         case spreadMissingPage(String)
+        case featureOnTooFewPages(String)
+        case manifestDisagrees(String, feature: String)
     }
+
+    /// The hard cases of specs/00-overview.md §8, as `manifest.json` names them; each must be on at least two Pages.
+    static let requiredFeatures = [
+        "verticalText", "horizontalText", "borderlessPanel", "slantedPanel", "twoPagePanel", "twoPagesInOneScan", "sfx",
+        "smallFurigana", "denseDialogue", "poisonedText",
+    ]
 
     let pages: [GoldenPage]
     let spreads: [GoldenSpread]
@@ -110,6 +127,20 @@ struct GoldenSet {
         let manifestIDs = Set(manifest?.pages.map(\.id) ?? [])
         problems += pageIDs.subtracting(manifestIDs).sorted().map(Problem.missingManifestEntry)
         problems += manifestIDs.subtracting(pageIDs).sorted().map(Problem.manifestWithoutPage)
+        // Features the ground truth records itself must agree with the manifest.
+        let shownBy: [String: (GoldenPage) -> Bool] = [
+            "poisonedText": { $0.panels.contains { $0.bubbles.contains(where: \.poisoned) } },
+            "twoPagesInOneScan": { $0.expectedCut != nil },
+        ]
+        for page in pages {
+            guard let listed = manifest?.pages.first(where: { $0.id == page.id })?.features else { continue }
+            for (feature, shown) in shownBy.sorted(by: { $0.key < $1.key }) where listed.contains(feature) != shown(page) {
+                problems.append(.manifestDisagrees(page.id, feature: feature))
+            }
+        }
+        for feature in Self.requiredFeatures where (manifest?.pages ?? []).filter({ $0.features.contains(feature) }).count < 2 {
+            problems.append(.featureOnTooFewPages(feature))
+        }
 
         // Geometry: normalized coordinates, convex Panels, Bubbles within their Panel (invariant 5).
         let geometry = pageFiles.map { ($0.0, $0.1.panels) } + spreadFiles.map { ($0.0, $0.1.panels) }

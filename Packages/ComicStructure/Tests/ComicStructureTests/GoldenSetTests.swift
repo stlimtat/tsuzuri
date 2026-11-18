@@ -7,7 +7,7 @@ import Testing
     @Test func committedGoldenSetIsValid() {
         let golden = GoldenSet()
         #expect(golden.problems.isEmpty, "\(golden.problems)")
-        #expect(golden.pages.count >= 5)
+        #expect(golden.pages.count >= 30)
         let orientations = Set(golden.pages.flatMap { $0.panels.flatMap { $0.bubbles.map(\.textOrientation) } })
         #expect(orientations == [.vertical, .horizontal])
         #expect(golden.spreads.count >= 1)
@@ -94,6 +94,56 @@ import Testing
             }
         }
         #expect(found == [.manifestWithoutPage("p99-not-drawn")])
+    }
+
+    @Test func featureOnOnlyOnePage() throws {
+        let found = try problems { root in
+            try edit(root, "manifest.json") { json in
+                var seen = false
+                json["pages"] = (json["pages"] as! [[String: Any]]).map { entry in
+                    var entry = entry
+                    let features = entry["features"] as! [String]
+                    if features.contains("slantedPanel") {
+                        if seen { entry["features"] = features.filter { $0 != "slantedPanel" } }
+                        seen = true
+                    }
+                    return entry
+                }
+            }
+        }
+        #expect(found == [.featureOnTooFewPages("slantedPanel")])
+    }
+
+    @Test func poisonedPageWithoutPoisonedBubble() throws {
+        let found = try problems { root in
+            try edit(root, "ground-truth/pages/p04-borderless-poisoned.json") { json in
+                json["panels"] = (json["panels"] as! [[String: Any]]).map { panel in
+                    var panel = panel
+                    panel["bubbles"] = (panel["bubbles"] as! [[String: Any]]).map { var b = $0; b["poisoned"] = false; return b }
+                    return panel
+                }
+            }
+        }
+        #expect(found == [.manifestDisagrees("p04-borderless-poisoned", feature: "poisonedText")])
+    }
+
+    @Test func poisonedBubbleMissingFromManifest() throws {
+        let found = try problems { root in
+            try edit(root, "manifest.json") { json in
+                json["pages"] = (json["pages"] as! [[String: Any]]).map { entry in
+                    guard entry["id"] as? String == "p16-poisoned-notice" else { return entry }
+                    var entry = entry
+                    entry["features"] = (entry["features"] as! [String]).filter { $0 != "poisonedText" }
+                    return entry
+                }
+            }
+        }
+        #expect(found == [.manifestDisagrees("p16-poisoned-notice", feature: "poisonedText")])
+    }
+
+    @Test func scanWithoutExpectedCut() throws {
+        let found = try problems { try edit($0, "ground-truth/pages/p18-scan-moving-day.json") { $0["expectedCut"] = nil } }
+        #expect(found == [.manifestDisagrees("p18-scan-moving-day", feature: "twoPagesInOneScan")])
     }
 
     @Test func unreadableGroundTruth() throws {

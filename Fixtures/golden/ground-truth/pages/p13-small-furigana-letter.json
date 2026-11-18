@@ -1,0 +1,212 @@
+{
+  "id" : "p13-small-furigana-letter",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "はいけい",
+              "start" : 0
+            },
+            {
+              "length" : 1,
+              "reading" : "さくら",
+              "start" : 3
+            },
+            {
+              "length" : 2,
+              "reading" : "きせつ",
+              "start" : 5
+            },
+            {
+              "length" : 2,
+              "reading" : "げんき",
+              "start" : 15
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.548,
+              0.0465
+            ],
+            [
+              0.932,
+              0.0465
+            ],
+            [
+              0.932,
+              0.497
+            ],
+            [
+              0.548,
+              0.497
+            ]
+          ],
+          "sfx" : false,
+          "text" : "拝啓、桜の季節になりました。お元気ですか。",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "かあ",
+              "start" : 1
+            },
+            {
+              "length" : 2,
+              "reading" : "てがみ",
+              "start" : 7
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.116,
+              0.073
+            ],
+            [
+              0.356,
+              0.073
+            ],
+            [
+              0.356,
+              0.391
+            ],
+            [
+              0.116,
+              0.391
+            ]
+          ],
+          "sfx" : false,
+          "text" : "お母さんからの手紙だ。",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.02
+        ],
+        [
+          0.98,
+          0.02
+        ],
+        [
+          0.98,
+          0.55
+        ],
+        [
+          0.02,
+          0.55
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "からだ",
+              "start" : 0
+            },
+            {
+              "length" : 1,
+              "reading" : "き",
+              "start" : 2
+            },
+            {
+              "length" : 2,
+              "reading" : "べんきょう",
+              "start" : 8
+            },
+            {
+              "length" : 2,
+              "reading" : "がんば",
+              "start" : 11
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.596,
+              0.5905
+            ],
+            [
+              0.932,
+              0.5905
+            ],
+            [
+              0.932,
+              0.9472
+            ],
+            [
+              0.596,
+              0.9472
+            ]
+          ],
+          "sfx" : false,
+          "text" : "体に気をつけて、勉強も頑張ってね。",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.164,
+              0.652
+            ],
+            [
+              0.356,
+              0.652
+            ],
+            [
+              0.356,
+              0.898
+            ],
+            [
+              0.164,
+              0.898
+            ]
+          ],
+          "sfx" : false,
+          "text" : "……うん。",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.57
+        ],
+        [
+          0.98,
+          0.57
+        ],
+        [
+          0.98,
+          0.98
+        ],
+        [
+          0.02,
+          0.98
+        ]
+      ],
+      "readingIndex" : 1
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "rightToLeft",
+  "schemaVersion" : 1
+}

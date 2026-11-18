@@ -1,0 +1,274 @@
+{
+  "id" : "p23-tall-panel",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "とう",
+              "start" : 2
+            },
+            {
+              "length" : 1,
+              "reading" : "うえ",
+              "start" : 4
+            },
+            {
+              "length" : 2,
+              "reading" : "でんせつ",
+              "start" : 7
+            },
+            {
+              "length" : 1,
+              "reading" : "かね",
+              "start" : 10
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.792,
+              0.0488
+            ],
+            [
+              0.9424,
+              0.0488
+            ],
+            [
+              0.9424,
+              0.452
+            ],
+            [
+              0.792,
+              0.452
+            ]
+          ],
+          "sfx" : false,
+          "text" : "この塔の上に、伝説の鐘があるらしい。",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.5805,
+              0.5
+            ],
+            [
+              0.7215,
+              0.5
+            ],
+            [
+              0.7215,
+              0.932
+            ],
+            [
+              0.5805,
+              0.932
+            ]
+          ],
+          "sfx" : true,
+          "text" : "ゴーン",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.51,
+          0.02
+        ],
+        [
+          0.98,
+          0.02
+        ],
+        [
+          0.98,
+          0.98
+        ],
+        [
+          0.51,
+          0.98
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "のぼ",
+              "start" : 0
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.3114,
+              0.038
+            ],
+            [
+              0.4524,
+              0.038
+            ],
+            [
+              0.4524,
+              0.302
+            ],
+            [
+              0.3114,
+              0.302
+            ]
+          ],
+          "sfx" : false,
+          "text" : "登ってみる？",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.02
+        ],
+        [
+          0.49,
+          0.02
+        ],
+        [
+          0.49,
+          0.32
+        ],
+        [
+          0.02,
+          0.32
+        ]
+      ],
+      "readingIndex" : 1
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "かいだん",
+              "start" : 0
+            },
+            {
+              "length" : 2,
+              "reading" : "なんだん",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.3114,
+              0.3586
+            ],
+            [
+              0.4524,
+              0.3586
+            ],
+            [
+              0.4524,
+              0.6314
+            ],
+            [
+              0.3114,
+              0.6314
+            ]
+          ],
+          "sfx" : false,
+          "text" : "階段、何段あるの？",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.34
+        ],
+        [
+          0.49,
+          0.34
+        ],
+        [
+          0.49,
+          0.65
+        ],
+        [
+          0.02,
+          0.65
+        ]
+      ],
+      "readingIndex" : 2
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "せんだん",
+              "start" : 2
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.3114,
+              0.6886
+            ],
+            [
+              0.4524,
+              0.6886
+            ],
+            [
+              0.4524,
+              0.9614
+            ],
+            [
+              0.3114,
+              0.9614
+            ]
+          ],
+          "sfx" : false,
+          "text" : "……千段くらい。",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.67
+        ],
+        [
+          0.49,
+          0.67
+        ],
+        [
+          0.49,
+          0.98
+        ],
+        [
+          0.02,
+          0.98
+        ]
+      ],
+      "readingIndex" : 3
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "rightToLeft",
+  "schemaVersion" : 1
+}

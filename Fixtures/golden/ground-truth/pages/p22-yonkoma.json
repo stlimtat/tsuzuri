@@ -1,0 +1,260 @@
+{
+  "id" : "p22-yonkoma",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "ねこ",
+              "start" : 0
+            },
+            {
+              "length" : 1,
+              "reading" : "はこ",
+              "start" : 2
+            },
+            {
+              "length" : 1,
+              "reading" : "はい",
+              "start" : 4
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.56,
+              0.0341
+            ],
+            [
+              0.71,
+              0.0341
+            ],
+            [
+              0.71,
+              0.2409
+            ],
+            [
+              0.56,
+              0.2409
+            ]
+          ],
+          "sfx" : false,
+          "text" : "猫が箱に入った。",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.25,
+          0.02
+        ],
+        [
+          0.75,
+          0.02
+        ],
+        [
+          0.75,
+          0.255
+        ],
+        [
+          0.25,
+          0.255
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "ちい",
+              "start" : 0
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.56,
+              0.2791
+            ],
+            [
+              0.71,
+              0.2791
+            ],
+            [
+              0.71,
+              0.4859
+            ],
+            [
+              0.56,
+              0.4859
+            ]
+          ],
+          "sfx" : false,
+          "text" : "小さすぎない？",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.25,
+          0.265
+        ],
+        [
+          0.75,
+          0.265
+        ],
+        [
+          0.75,
+          0.5
+        ],
+        [
+          0.25,
+          0.5
+        ]
+      ],
+      "readingIndex" : 1
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "で",
+              "start" : 0
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.56,
+              0.5241
+            ],
+            [
+              0.71,
+              0.5241
+            ],
+            [
+              0.71,
+              0.7309
+            ],
+            [
+              0.56,
+              0.7309
+            ]
+          ],
+          "sfx" : false,
+          "text" : "出られなくなった。",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.25,
+          0.51
+        ],
+        [
+          0.75,
+          0.51
+        ],
+        [
+          0.75,
+          0.745
+        ],
+        [
+          0.25,
+          0.745
+        ]
+      ],
+      "readingIndex" : 2
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.56,
+              0.7691
+            ],
+            [
+              0.71,
+              0.7691
+            ],
+            [
+              0.71,
+              0.9759
+            ],
+            [
+              0.56,
+              0.9759
+            ]
+          ],
+          "sfx" : false,
+          "text" : "やっぱり……",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.3,
+              0.7785
+            ],
+            [
+              0.45,
+              0.7785
+            ],
+            [
+              0.45,
+              0.9665
+            ],
+            [
+              0.3,
+              0.9665
+            ]
+          ],
+          "sfx" : true,
+          "text" : "ニャー",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.25,
+          0.755
+        ],
+        [
+          0.75,
+          0.755
+        ],
+        [
+          0.75,
+          0.99
+        ],
+        [
+          0.25,
+          0.99
+        ]
+      ],
+      "readingIndex" : 3
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "rightToLeft",
+  "schemaVersion" : 1
+}

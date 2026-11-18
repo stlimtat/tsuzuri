@@ -1,0 +1,70 @@
+{
+  "id" : "p32-spread2-right",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "き",
+              "start" : 2
+            },
+            {
+              "length" : 1,
+              "reading" : "した",
+              "start" : 4
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.408,
+              0.76
+            ],
+            [
+              0.914,
+              0.76
+            ],
+            [
+              0.914,
+              0.8975
+            ],
+            [
+              0.408,
+              0.8975
+            ]
+          ],
+          "sfx" : false,
+          "text" : "あの木の下がいいな。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.04,
+          0.43
+        ],
+        [
+          0.96,
+          0.43
+        ],
+        [
+          0.96,
+          0.98
+        ],
+        [
+          0.04,
+          0.98
+        ]
+      ],
+      "readingIndex" : 2
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "leftToRight",
+  "schemaVersion" : 1
+}
