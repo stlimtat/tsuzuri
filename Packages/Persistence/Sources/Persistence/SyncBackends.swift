@@ -27,19 +27,29 @@ public struct WorkRecord: Equatable, Sendable {
     }
 }
 
+/// What replaces a deleted Work's record, so every device deletes it and no save from at or before
+/// `deletedAt` brings it back (ADR 0007).
+public struct Tombstone: Equatable, Sendable, Codable {
+    public let workID: Work.ID
+    public let deletedAt: Date
+
+    public init(workID: Work.ID, deletedAt: Date) { self.workID = workID; self.deletedAt = deletedAt }
+}
+
 /// Where the record feed has been read up to. Opaque: only the backend that issued it understands it.
 public struct ChangeToken: Hashable, Sendable {
     public let rawValue: Data
     public init(rawValue: Data) { self.rawValue = rawValue }
 }
 
-/// The records changed since a token, and the token to ask from next time.
+/// The records changed and the Works deleted since a token, and the token to ask from next time.
 public struct RecordChanges: Sendable {
     public let changed: [WorkRecord]
+    public let deleted: [Tombstone]
     public let token: ChangeToken
 
-    public init(changed: [WorkRecord], token: ChangeToken) {
-        self.changed = changed; self.token = token
+    public init(changed: [WorkRecord], deleted: [Tombstone] = [], token: ChangeToken) {
+        self.changed = changed; self.deleted = deleted; self.token = token
     }
 }
 
@@ -49,6 +59,8 @@ public protocol RecordSyncBackend: Sendable {
     func fetchChanges(since token: ChangeToken?) async throws -> RecordChanges
     /// Saves the records, replacing any with the same Work ID.
     func save(_ records: [WorkRecord]) async throws
+    /// Replaces each Work's record with its tombstone.
+    func delete(_ tombstones: [Tombstone]) async throws
 }
 
 /// The app's iCloud Drive container, laid out like `files/` under a Library root: `<kind>/<uuid>[.<ext>]`.
@@ -57,4 +69,8 @@ public protocol UbiquitousFileContainer: Sendable {
     func copyIn(_ local: URL, as ref: FileRef) async throws
     /// Downloads `ref` and writes it to `local`, returning once the file is there.
     func download(_ ref: FileRef, to local: URL) async throws
+    /// Whether iCloud holds `ref`, so this device's copy can be dropped without losing it.
+    func isUploaded(_ ref: FileRef) async throws -> Bool
+    /// Removes `ref` from the container; removing a file it lacks is not an error.
+    func remove(_ ref: FileRef) async throws
 }
