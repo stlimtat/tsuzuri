@@ -22,9 +22,29 @@ enum DebugLibraryError: Error, Equatable {
 @MainActor @Observable
 final class DebugLibraryModel {
     private(set) var rows: [DebugLibraryRow] = []
+    /// The store's latest sync status, once `followSyncStatus` has heard one.
+    private(set) var syncStatus: SyncStatus?
+    /// The banner to show for `syncStatus`, if any.
+    var banner: SyncBanner? { syncStatus.flatMap(SyncBanner.init) }
     private let store: any LibraryStore
+    private let sync: (@Sendable () async throws -> Void)?
 
-    init(store: any LibraryStore) { self.store = store }
+    /// `sync` brings the store up to date with iCloud (`CloudLibraryStore.sync`); nil for a local-only store.
+    init(store: any LibraryStore, sync: (@Sendable () async throws -> Void)? = nil) {
+        self.store = store
+        self.sync = sync
+    }
+
+    /// Syncs, then reloads. A failed sync doesn't fail the refresh: the sync status already reports it.
+    func refresh() async throws {
+        try? await sync?()
+        try await reload()
+    }
+
+    /// Keeps `syncStatus` up to date until the calling task is cancelled.
+    func followSyncStatus() async {
+        for await status in store.syncStatus { syncStatus = status }
+    }
 
     /// Reads every Work from the store, in the store's order.
     func reload() async throws {
@@ -59,6 +79,17 @@ final class DebugLibraryModel {
         work.updatedAt = now
         try await store.save(work)
         try await reload()
+    }
+
+    /// The Work's first Page image, downloaded from iCloud if this device lacks it; the list then shows the
+    /// new downloaded count.
+    func firstPageFile(of id: Work.ID) async throws -> URL {
+        guard let page = try await store.works(kind: nil).first(where: { $0.id == id })?.chapters.first?.pages.first else {
+            throw PersistenceError.notFound(id.uuidString)
+        }
+        let url = try await store.fileURL(for: page.imageRef)
+        try await reload()
+        return url
     }
 
     /// Deletes the Work and every file it references.

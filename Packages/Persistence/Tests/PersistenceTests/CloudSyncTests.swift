@@ -555,4 +555,36 @@ import Testing
 
         #expect(Set(try await devices.b.works(kind: nil).map(\.id)) == [work.id, other.id])
     }
+
+    /// The change token is kept with the Library, so a relaunch reads only what changed since the last sync.
+    @Test func aRelaunchedDeviceFetchesFromWhereItsLastSyncReadUpTo() async throws {
+        let devices = try TwoDevices()
+        try await devices.a.save(Work(kind: .book, title: "Synced", readingDirection: .leftToRight))
+        try await devices.a.sync()
+
+        try await devices.reopenA().sync()
+
+        let tokens = await devices.records.fetchedSince
+        try #require(tokens.count == 2)
+        #expect(tokens[1] != nil)
+    }
+
+    /// Something iCloud refused for another reason (e.g. the CloudKit schema isn't deployed): the status says
+    /// what, so it isn't stuck on `.syncing`, and nothing queued is lost.
+    @Test(.timeLimit(.minutes(1))) func anUnexpectedFailureIsReportedAsAnErrorWithItsMessage() async throws {
+        struct Refused: Error, CustomStringConvertible { var description: String { "schema not deployed" } }
+        struct RefusingRecords: RecordSyncBackend {
+            func fetchChanges(since token: ChangeToken?) async throws -> RecordChanges { throw Refused() }
+            func save(_ records: [WorkRecord]) async throws {}
+            func delete(_ tombstones: [Tombstone]) async throws {}
+        }
+        let store = try CloudLibraryStore(root: FileManager.default.temporaryDirectory.appending(path: "Refused-\(UUID())"),
+                                          records: RefusingRecords(), files: FakeUbiquitousFileContainer())
+        try await store.save(Work(kind: .book, title: "Kept", readingDirection: .leftToRight))
+
+        await #expect(throws: Refused.self) { try await store.sync() }
+
+        #expect(await store.syncStatus.first { _ in true } == .error("schema not deployed"))
+        #expect(try await store.works(kind: nil).map(\.title) == ["Kept"])
+    }
 }

@@ -113,6 +113,21 @@ func emptyLibraryRoot() -> URL {
         #expect(model.rows.first?.downloadedPageCount == 0)
     }
 
+    /// Opening a Work whose Page is only in iCloud downloads it, and the list then counts it as downloaded.
+    @Test func openingAWorksFirstPageDownloadsItAndCountsItAsDownloaded() async throws {
+        let store = PartlyDownloadedStore(local: try LocalLibraryStore(root: emptyLibraryRoot()))
+        let model = DebugLibraryModel(store: store)
+        try await model.createSampleWork(fromPage: goldenPage, name: "Sample")
+        let work = try #require(try await store.works(kind: nil).first)
+        await store.markOnlyInICloud(work.chapters[0].pages[0].imageRef)
+        try await model.reload()
+
+        let page = try await model.firstPageFile(of: work.id)
+
+        #expect(try Data(contentsOf: page) == Data(contentsOf: goldenPage))
+        #expect(model.rows.first?.downloadedPageCount == 1)
+    }
+
     @Test func aSamplePageThatIsNotAnImageAddsNoWork() async throws {
         let root = emptyLibraryRoot()
         let model = DebugLibraryModel(store: try LocalLibraryStore(root: root))
@@ -137,7 +152,11 @@ actor PartlyDownloadedStore: LibraryStore {
     func works(kind: WorkKind?) async throws -> [Work] { try await local.works(kind: kind) }
     func save(_ work: Work) async throws { try await local.save(work) }
     func delete(_ workID: Work.ID) async throws { try await local.delete(workID) }
-    func fileURL(for ref: FileRef) async throws -> URL { try await local.fileURL(for: ref) }
+    /// Downloads the file: from now on it counts as on this device.
+    func fileURL(for ref: FileRef) async throws -> URL {
+        onlyInICloud.remove(ref)
+        return try await local.fileURL(for: ref)
+    }
     func isDownloaded(_ ref: FileRef) async throws -> Bool {
         if onlyInICloud.contains(ref) { return false }
         return try await local.isDownloaded(ref)
@@ -145,4 +164,66 @@ actor PartlyDownloadedStore: LibraryStore {
     func store(file: URL, kind: FileKind) async throws -> FileRef { try await local.store(file: file, kind: kind) }
     func evictLocalCopy(_ ref: FileRef) async throws { try await local.evictLocalCopy(ref) }
     nonisolated var syncStatus: AsyncStream<SyncStatus> { local.syncStatus }
+}
+
+@MainActor @Suite struct DebugLibrarySyncTests {
+    @Test(.timeLimit(.minutes(1))) func theModelFollowsTheStoresSyncStatusAndShowsTheBanner() async throws {
+        let store = StatusStore(local: try LocalLibraryStore(root: emptyLibraryRoot()))
+        let model = DebugLibraryModel(store: store)
+        let following = Task { await model.followSyncStatus() }
+        defer { following.cancel() }
+
+        store.publish(.offline)
+        while model.syncStatus != .offline { await Task.yield() }
+        #expect(model.banner == .offline)
+
+        store.publish(.synced)
+        while model.syncStatus != .synced { await Task.yield() }
+        #expect(model.banner == nil)
+    }
+
+    /// Refreshing syncs first, so a Work another device made is listed.
+    @Test func refreshingSyncsThenListsWhatTheSyncBroughtIn() async throws {
+        let store = try LocalLibraryStore(root: emptyLibraryRoot())
+        let model = DebugLibraryModel(store: store, sync: {
+            try await store.save(Work(kind: .comic, title: "Made on iPad", readingDirection: .rightToLeft))
+        })
+
+        try await model.refresh()
+
+        #expect(model.rows.map(\.name) == ["Made on iPad"])
+    }
+
+    /// Offline is shown by the status and banner, not as a failure: refreshing still lists the local Library.
+    @Test func refreshingWhileICloudIsUnavailableStillListsTheLibrary() async throws {
+        let store = try LocalLibraryStore(root: emptyLibraryRoot())
+        try await store.save(Work(kind: .comic, title: "Local", readingDirection: .rightToLeft))
+        let model = DebugLibraryModel(store: store, sync: { throw ICloudError.accountUnavailable })
+
+        try await model.refresh()
+
+        #expect(model.rows.map(\.name) == ["Local"])
+    }
+}
+
+/// A Library whose sync status the test sets: a `LocalLibraryStore` with a status stream the test feeds.
+final class StatusStore: LibraryStore {
+    let local: LocalLibraryStore
+    private let statuses: AsyncStream<SyncStatus>
+    private let feed: AsyncStream<SyncStatus>.Continuation
+    init(local: LocalLibraryStore) {
+        self.local = local
+        (statuses, feed) = AsyncStream.makeStream()
+    }
+
+    func publish(_ status: SyncStatus) { feed.yield(status) }
+
+    func works(kind: WorkKind?) async throws -> [Work] { try await local.works(kind: kind) }
+    func save(_ work: Work) async throws { try await local.save(work) }
+    func delete(_ workID: Work.ID) async throws { try await local.delete(workID) }
+    func fileURL(for ref: FileRef) async throws -> URL { try await local.fileURL(for: ref) }
+    func isDownloaded(_ ref: FileRef) async throws -> Bool { try await local.isDownloaded(ref) }
+    func store(file: URL, kind: FileKind) async throws -> FileRef { try await local.store(file: file, kind: kind) }
+    func evictLocalCopy(_ ref: FileRef) async throws { try await local.evictLocalCopy(ref) }
+    var syncStatus: AsyncStream<SyncStatus> { statuses }
 }

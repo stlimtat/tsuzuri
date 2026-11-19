@@ -62,12 +62,34 @@
         }
       }
     },
+    "Done": {
+      "comment": "Closes the Page shown from the debug Library.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
     "Downloaded: %lld": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Downloaded: %lld"
+          }
+        }
+      }
+    },
+    "Error: %@": {
+      "comment": "Sync status: sync failed, with the reason.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error: %@"
           }
         }
       }
@@ -108,6 +130,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "OK"
+          }
+        }
+      }
+    },
+    "Offline": {
+      "comment": "Sync status: iCloud is unavailable.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline"
           }
         }
       }
@@ -172,6 +205,28 @@
         }
       }
     },
+    "Synced": {
+      "comment": "Sync status: everything is in iCloud.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synced"
+          }
+        }
+      }
+    },
+    "Syncing": {
+      "comment": "Sync status: changes are waiting to reach iCloud.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Syncing"
+          }
+        }
+      }
+    },
     "The Library could not be opened.": {
       "localizations": {
         "en": {
@@ -188,6 +243,50 @@
           "stringUnit": {
             "state": "translated",
             "value": "This removes the Work and its files from this device."
+          }
+        }
+      }
+    },
+    "Your iCloud storage is full. Your changes are kept on this device and sync when there is space.": {
+      "comment": "Banner while the user's iCloud storage is full; nothing is blocked.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your iCloud storage is full. Your changes are kept on this device and sync when there is space."
+          }
+        }
+      }
+    },
+    "iCloud full": {
+      "comment": "Sync status: the user's iCloud storage is full.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud full"
+          }
+        }
+      }
+    },
+    "iCloud is unavailable. Your changes are kept on this device and sync when iCloud is back.": {
+      "comment": "Banner while iCloud is unavailable; nothing is blocked.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud is unavailable. Your changes are kept on this device and sync when iCloud is back."
+          }
+        }
+      }
+    },
+    "iCloud: %@": {
+      "comment": "Debug screen: the Library's sync status.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud: %@"
           }
         }
       }

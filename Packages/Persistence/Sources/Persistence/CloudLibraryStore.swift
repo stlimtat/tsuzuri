@@ -12,15 +12,16 @@ public actor CloudLibraryStore: LibraryStore {
     private var outbox: Outbox
     private let outboxURL: URL
     private let status: StatusFeed
-    /// What went wrong in the last sync (`.offline`, `.iCloudFull`, or `.error` for skipped remote records), or
-    /// nil; shown in place of `.syncing`/`.synced` until a sync finishes cleanly. Change it only through `report`.
+    /// What went wrong in the last sync (`.offline`, `.iCloudFull`, or `.error` for another failure or skipped
+    /// remote records), or nil; shown in place of `.syncing`/`.synced` until a sync finishes cleanly. Change it only through `report`.
     private var problem: SyncStatus?
     /// When each Work this device knows was deleted was deleted; a save no later than that is dropped.
     /// Kept on disk; change it only through `recordDeletion`.
     private var deletions: [Work.ID: Date]
     private let deletionsURL: URL
-    /// Where this device has read the record feed up to.
+    /// Where this device has read the record feed up to. Kept on disk; change it only through `advance`.
     private var token: ChangeToken?
+    private let tokenURL: URL
     /// The most recently started sync, which the next one waits for.
     private var lastSync: Task<Void, Error>?
     /// Times the waits between sync retries.
@@ -39,10 +40,13 @@ public actor CloudLibraryStore: LibraryStore {
         self.files = files
         outboxURL = root.appending(path: "outbox.json")
         deletionsURL = root.appending(path: "deletions.json")
+        tokenURL = root.appending(path: "change-token.json")
         // A corrupt outbox throws rather than reporting `.error` and starting empty, which would silently never
         // upload the writes it held. ponytail: rebuild it instead (queue every local Work and file) if it happens.
         outbox = try Self.load(outboxURL) ?? Outbox()
         deletions = try Self.load(deletionsURL) ?? [:]
+        // A corrupt token only costs a fetch from the start.
+        token = (try? Self.load(tokenURL)) ?? nil
         status = StatusFeed(outbox.isEmpty ? .synced : .syncing)
     }
 
@@ -57,6 +61,12 @@ public actor CloudLibraryStore: LibraryStore {
     private func recordDeletion(_ tombstone: Tombstone) throws {
         deletions[tombstone.workID] = tombstone.deletedAt
         try JSONEncoder().encode(deletions).write(to: deletionsURL, options: [.atomic, .completeFileProtection])
+    }
+
+    /// Remembers that every change up to `token` is applied locally.
+    private func advance(to token: ChangeToken) throws {
+        self.token = token
+        try JSONEncoder().encode(token).write(to: tokenURL, options: [.atomic, .completeFileProtection])
     }
 
     private func updateOutbox(_ change: (inout Outbox) -> Void) throws {
@@ -106,7 +116,8 @@ public actor CloudLibraryStore: LibraryStore {
     }
     /// Brings this device and iCloud up to date: applies remote changes, then uploads queued files and
     /// records (files first, so no uploaded record points at a file iCloud lacks).
-    /// Throws when iCloud is unreachable or refuses the upload; whatever didn't upload stays queued. A remote
+    /// Throws when iCloud is unreachable or refuses the upload; whatever didn't upload stays queued. A failure
+    /// other than `ICloudError` is reported as `.error` with its description. A remote
     /// record that fails `verified()` is skipped and reported as `.error`, not thrown. A sync
     /// called while another runs starts once that one ends.
     public func sync() async throws {
@@ -125,6 +136,9 @@ public actor CloudLibraryStore: LibraryStore {
             report(rejected.isEmpty ? nil : .error("Skipped \(rejected.count) bad record(s) from iCloud: " + rejected.joined(separator: "; ")))
         } catch let error as ICloudError {
             report(error == .accountUnavailable ? .offline : .iCloudFull)
+            throw error
+        } catch {
+            report(.error(String(describing: error)))
             throw error
         }
     }
@@ -154,7 +168,7 @@ public actor CloudLibraryStore: LibraryStore {
             try recordDeletion(tombstone)
             try await local.apply(tombstone)
         }
-        token = changes.token
+        try advance(to: changes.token)
 
         for ref in outbox.files {
             try await files.copyIn(local.layout.fileURL(ref), as: ref)
@@ -241,8 +255,8 @@ public actor CloudLibraryStore: LibraryStore {
     }
 
     /// `.syncing` while local writes wait to upload, `.synced` once the queue is empty; `.offline` or
-    /// `.iCloudFull` while iCloud can't take the queue, and `.error` after a sync skipped bad remote records,
-    /// until a sync finishes cleanly. Each subscriber gets the current status first, then every change.
+    /// `.iCloudFull` while iCloud can't take the queue, and `.error` after a sync failed otherwise or skipped
+    /// bad remote records, until a sync finishes cleanly. Each subscriber gets the current status first, then every change.
     public nonisolated var syncStatus: AsyncStream<SyncStatus> { status.subscribe() }
 }
 

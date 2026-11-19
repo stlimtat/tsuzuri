@@ -1,4 +1,5 @@
 import ComicStructure
+import Persistence
 import SwiftUI
 
 /// Debug screen listing the Works in the Library; the App Shell replaces it.
@@ -10,6 +11,7 @@ struct DebugLibraryView: View {
     @State private var newName = ""
     @State private var deleting: DebugLibraryRow?
     @State private var failure: String?
+    @State private var viewing: PageFile?
 
     var body: some View {
         NavigationStack {
@@ -20,6 +22,8 @@ struct DebugLibraryView: View {
                     Text("Downloaded: \(row.downloadedPageCount)")
                 }
                 .font(.subheadline)
+                .contentShape(.rect)
+                .onTapGesture { run { viewing = PageFile(url: try await model.firstPageFile(of: row.id)) } }
                 .swipeActions {
                     Button("Delete", role: .destructive) { deleting = row }
                     Button("Rename") { newName = row.name; renaming = row }
@@ -35,18 +39,28 @@ struct DebugLibraryView: View {
                                            description: Text("Add a sample Work to try the Library."))
                 }
             }
+            .safeAreaInset(edge: .top) {
+                if let banner = model.banner { SyncBannerView(banner: banner) }
+            }
             .safeAreaInset(edge: .bottom) {
-                Text("Build \(buildInfo.buildNumber) · \(buildInfo.shortCommit)")
-                    .font(.caption.monospaced())
-                    .foregroundStyle(.secondary)
-                    .accessibilityIdentifier("buildInfo")
+                VStack(spacing: 2) {
+                    if let status = model.syncStatus {
+                        Text("iCloud: \(SyncStatusLine.text(for: status))", comment: "Debug screen: the Library's sync status.")
+                            .accessibilityIdentifier("syncStatus")
+                    }
+                    Text("Build \(buildInfo.buildNumber) · \(buildInfo.shortCommit)")
+                        .font(.caption.monospaced())
+                        .accessibilityIdentifier("buildInfo")
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
             .navigationTitle("Library (Debug)")
             .toolbar {
                 Button("Add Sample Work", systemImage: "plus") { run { try await addSample() } }
             }
             .task { run { try await model.reload() } }
-            .refreshable { run { try await model.reload() } }
+            .refreshable { do { try await model.refresh() } catch { failure = error.localizedDescription } }
             .alert("Rename Work", isPresented: isPresented($renaming)) {
                 TextField("Name", text: $newName)
                 Button("Cancel", role: .cancel) {}
@@ -62,6 +76,16 @@ struct DebugLibraryView: View {
                 Button("Cancel", role: .cancel) {}
             } message: { _ in
                 Text("This removes the Work and its files from this device.")
+            }
+            .sheet(item: $viewing) { page in
+                NavigationStack {
+                    Group {
+                        if let picture = UIImage(contentsOfFile: page.url.path) {
+                            Image(uiImage: picture).resizable().scaledToFit()
+                        }
+                    }
+                    .toolbar { Button("Done") { viewing = nil } }
+                }
             }
             .alert("Something went wrong", isPresented: isPresented($failure)) {
                 Button("OK") {}
@@ -90,5 +114,35 @@ struct DebugLibraryView: View {
 
     private func isPresented<Value>(_ value: Binding<Value?>) -> Binding<Bool> {
         Binding(get: { value.wrappedValue != nil }, set: { if !$0 { value.wrappedValue = nil } })
+    }
+}
+
+/// A downloaded Page file the debug screen is showing.
+struct PageFile: Identifiable {
+    let url: URL
+    var id: URL { url }
+}
+
+/// Says why changes aren't reaching iCloud; shown above the list without blocking anything.
+struct SyncBannerView: View {
+    let banner: SyncBanner
+
+    var body: some View {
+        Label {
+            switch banner {
+            case .offline:
+                Text("iCloud is unavailable. Your changes are kept on this device and sync when iCloud is back.")
+            case .iCloudFull:
+                Text("Your iCloud storage is full. Your changes are kept on this device and sync when there is space.")
+            }
+        } icon: {
+            Image(systemName: banner == .offline ? "icloud.slash" : "exclamationmark.icloud")
+        }
+        .font(.footnote)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(.yellow.opacity(0.25), in: .rect(cornerRadius: 10))
+        .padding(.horizontal)
+        .accessibilityIdentifier("syncBanner")
     }
 }

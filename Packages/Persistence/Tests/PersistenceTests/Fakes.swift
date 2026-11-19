@@ -14,7 +14,11 @@ actor FakeRecordSyncBackend: RecordSyncBackend {
 
     func onUpload(_ hook: @escaping @Sendable () async -> Void) { whileUploading = hook }
 
+    /// The token each fetch asked from, in order.
+    private(set) var fetchedSince: [ChangeToken?] = []
+
     func fetchChanges(since token: ChangeToken?) async throws -> RecordChanges {
+        fetchedSince.append(token)
         let after = token.map { $0.rawValue.withUnsafeBytes { $0.loadUnaligned(as: UInt64.self) } } ?? 0
         let entries = records.values.filter { $0.position > after }.sorted { $0.position < $1.position }.map(\.entry)
         return RecordChanges(

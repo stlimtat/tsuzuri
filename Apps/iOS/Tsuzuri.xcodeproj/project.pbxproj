@@ -211,6 +211,7 @@
 				SWIFT_VERSION = 6.0;
 				TSUZURI_BUNDLE_ID = net.stlim.tsuzuri;
 				TSUZURI_COMMIT = "";
+				TSUZURI_ICLOUD_ENVIRONMENT = Development;
 				TSUZURI_PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
@@ -234,6 +235,7 @@
 				SWIFT_VERSION = 6.0;
 				TSUZURI_BUNDLE_ID = net.stlim.tsuzuri;
 				TSUZURI_COMMIT = "";
+				TSUZURI_ICLOUD_ENVIRONMENT = Production;
 				TSUZURI_PROVISIONING_PROFILE = "";
 			};
 			name = Release;

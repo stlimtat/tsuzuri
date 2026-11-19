@@ -45,11 +45,27 @@ In [Certificates, Identifiers & Profiles](https://developer.apple.com/account/re
 
 ## 7. CloudKit production schema
 
-The record schema is created in the CloudKit **development** environment by the live backend (#10) first. TestFlight builds use the **production** environment, which starts empty (ADR 0007: deploy the schema before a TestFlight build ships).
+The app syncs through one custom zone, **`Library`**, in the **private** database of `iCloud.net.stlim.tsuzuri`. CloudKit creates record types and fields in the **development** environment the first time a development build saves them. TestFlight builds use the **production** environment, which starts empty and never creates schema on its own (ADR 0007: deploy the schema before a TestFlight build ships).
 
-- [ ] Run a development build that saves Works and files (after #10), so every record type and field exists in development.
-- [ ] [CloudKit Console](https://icloud.developer.apple.com/) → `iCloud.net.stlim.tsuzuri` → Schema → **Deploy Schema Changes…** to production.
-- [ ] Repeat whenever `ComicSchema` changes the record schema, before shipping the build that needs it.
+Which environment a build uses is the `com.apple.developer.icloud-container-environment` entitlement, set from the `TSUZURI_ICLOUD_ENVIRONMENT` build setting: `Development` for Debug, `Production` for Release (the archive). Exporting for App Store Connect also sets it to `Production`.
+
+The schema the app needs:
+
+| Record type | Field | Type | Set when |
+|---|---|---|---|
+| `Work` (record name = the Work ID) | `schemaVersion` | Int(64) | a Work is saved |
+| | `updatedAt` | Date/Time | a Work is saved |
+| | `payload` | Asset (the Work's `ComicSchema` JSON) | a Work is saved |
+| | `deletedAt` | Date/Time | a Work is deleted (its tombstone) |
+
+No indexes are needed: the app reads the zone's change feed, never queries, so `recordName` does not need to be queryable. Page files are in iCloud Drive, not CloudKit, and need no schema.
+
+- [ ] Run a **Debug** build from Xcode, signed with your team, on a device or simulator signed in to your iCloud. Add a sample Work, rename it, then **delete** one (the delete creates `deletedAt`). The debug screen should show `iCloud: Synced`.
+- [ ] [CloudKit Console](https://icloud.developer.apple.com/) → `iCloud.net.stlim.tsuzuri` → Development → Schema: check record type `Work` has the four fields above.
+- [ ] Schema → **Deploy Schema Changes…** to production.
+- [ ] Repeat whenever the record schema changes, before shipping the build that needs it. (A `ComicSchema` version change alone doesn't: the JSON is inside `payload`.)
+
+If a TestFlight build shows `iCloud: Error: …` mentioning an unknown record type or field, the production schema is missing something: deploy it as above.
 
 ## 8. GitHub secrets
 
@@ -89,6 +105,21 @@ The secrets exist only in GitHub. During the job they are written to the runner'
 - [ ] App Store Connect → Tsuzuri → TestFlight → Internal Testing → **+** create a group (e.g. `Lead`), add yourself as an internal tester, and add the build. Internal builds need no Beta App Review.
 - [ ] Install **TestFlight** on your iPhone, accept the invite, install Tsuzuri.
 - [ ] Open it and check the debug screen shows `Build <run number> · <first 7 characters of the commit>`.
+
+## Two-device sync test (TestFlight acceptance)
+
+Install the same TestFlight build on an iPhone and an iPad signed in to the **same** Apple Account, with iCloud Drive on. There is no push yet: a device picks up changes from the other when it comes back to the foreground or on pull to refresh, not while it stays open.
+
+- [ ] Both devices: the debug screen shows `iCloud: Synced` and no banner.
+- [ ] iPhone: add a sample Work. Wait for `iCloud: Synced`.
+- [ ] iPad: switch away and back (or pull to refresh). The Work appears with `Pages: 1` and `Downloaded: 0`.
+- [ ] iPad: tap the Work. Its Page downloads from iCloud Drive and shows; after **Done** the row reads `Downloaded: 1`.
+- [ ] iPhone: rename the Work. iPad: refresh; the new name shows.
+- [ ] iPhone: delete the Work. iPad: refresh; it is gone.
+- [ ] iPhone: turn on airplane mode, then pull to refresh. The banner says iCloud is unavailable and the status reads `iCloud: Offline`. Add, rename and delete Works: nothing is blocked.
+- [ ] Turn airplane mode off and pull to refresh (or switch away and back). The banner goes, the status goes to `Syncing` then `Synced`, and the iPad shows the changes after its own refresh. Nothing made offline is lost.
+
+Report anything else the status line shows (`Error: …`) with its full text.
 
 ## Local builds
 

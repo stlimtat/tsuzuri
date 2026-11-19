@@ -37,7 +37,7 @@ public struct Tombstone: Equatable, Sendable, Codable {
 }
 
 /// Where the record feed has been read up to. Opaque: only the backend that issued it understands it.
-public struct ChangeToken: Hashable, Sendable {
+public struct ChangeToken: Hashable, Sendable, Codable {
     public let rawValue: Data
     public init(rawValue: Data) { self.rawValue = rawValue }
 }
