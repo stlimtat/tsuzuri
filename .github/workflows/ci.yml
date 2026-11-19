@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [ComicStructure, Persistence, App]
+        package: [ComicStructure, Persistence, App, Scripts]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: scripts/test.sh ${{ matrix.package }}

@@ -4,6 +4,7 @@ import SwiftUI
 /// Debug screen listing the Works in the Library; the App Shell replaces it.
 struct DebugLibraryView: View {
     let model: DebugLibraryModel
+    var buildInfo = BuildInfo(infoDictionary: Bundle.main.infoDictionary ?? [:])
 
     @State private var renaming: DebugLibraryRow?
     @State private var newName = ""
@@ -33,6 +34,12 @@ struct DebugLibraryView: View {
                     ContentUnavailableView("No Works", systemImage: "books.vertical",
                                            description: Text("Add a sample Work to try the Library."))
                 }
+            }
+            .safeAreaInset(edge: .bottom) {
+                Text("Build \(buildInfo.buildNumber) · \(buildInfo.shortCommit)")
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("buildInfo")
             }
             .navigationTitle("Library (Debug)")
             .toolbar {

@@ -81,6 +81,8 @@ Works with Xcode or with the Command Line Tools alone (which skip the app's test
 
 The iOS app (iPhone and iPad) lives in [`Apps/iOS/`](Apps/iOS/): open `Tsuzuri.xcodeproj` in Xcode, or build it for the Simulator, unsigned, with `scripts/build-app.sh`. Its logic tests run on macOS as part of `scripts/test.sh` (or `scripts/test.sh App`). The bundle ID is the `TSUZURI_BUNDLE_ID` build setting; the iCloud container is `iCloud.<bundle ID>`.
 
+Releases go to TestFlight through a manually started GitHub Actions workflow on `main`; the one-time Apple and GitHub setup is in [`docs/release/testflight-checklist.md`](docs/release/testflight-checklist.md).
+
 Shared fixtures live in [`Fixtures/golden/`](Fixtures/golden/); security controls in [`security/`](security/).
 
 ## Status

@@ -21,6 +21,17 @@
         }
       }
     },
+    "Build %@ · %@": {
+      "comment": "Debug screen footer: build number and short commit SHA.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build %1$@ · %2$@"
+          }
+        }
+      }
+    },
     "Cancel": {
       "localizations": {
         "en": {
