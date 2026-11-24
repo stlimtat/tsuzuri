@@ -15,7 +15,7 @@ concurrency:
 jobs:
   test:
     name: Test ${{ matrix.package }}
-    runs-on: macos-15
+    runs-on: macos-26
     strategy:
       fail-fast: false
       matrix:
@@ -26,7 +26,7 @@ jobs:
 
   app:
     name: Build iOS app (Simulator, unsigned)
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: scripts/build-app.sh
@@ -51,7 +51,7 @@ jobs:
 
   sast:
     name: SAST (CodeQL)
-    runs-on: macos-15
+    runs-on: macos-26
     permissions:
       contents: read
       security-events: write
