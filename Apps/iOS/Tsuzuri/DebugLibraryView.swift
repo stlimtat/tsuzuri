@@ -75,7 +75,7 @@ struct DebugLibraryView: View {
                 Button("Delete", role: .destructive) { run { try await model.delete(row.id) } }
                 Button("Cancel", role: .cancel) {}
             } message: { _ in
-                Text("This removes the Work and its files from this device.")
+                Text("This removes the Work and its files from this device, your other devices and iCloud.")
             }
             .sheet(item: $viewing) { page in
                 NavigationStack {

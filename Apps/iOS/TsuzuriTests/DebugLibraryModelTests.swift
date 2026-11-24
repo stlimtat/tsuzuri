@@ -62,6 +62,17 @@ func emptyLibraryRoot() -> URL {
         #expect(stored.updatedAt == renamedAt)
     }
 
+    @Test func renamingTrimsSpacesAroundTheName() async throws {
+        let root = emptyLibraryRoot()
+        let model = DebugLibraryModel(store: try LocalLibraryStore(root: root))
+        try await model.createSampleWork(fromPage: goldenPage, name: "Old")
+        let id = try #require(model.rows.first?.id)
+
+        try await model.rename(id, to: "  綴り \"Vol.1\" 📚 \n", at: Date(timeIntervalSince1970: 2_000_000_000))
+
+        #expect(try await LocalLibraryStore(root: root).works(kind: nil).first?.title == "綴り \"Vol.1\" 📚")
+    }
+
     @Test func renamingToABlankNameLeavesTheWorkUnchanged() async throws {
         let root = emptyLibraryRoot()
         let model = DebugLibraryModel(store: try LocalLibraryStore(root: root))

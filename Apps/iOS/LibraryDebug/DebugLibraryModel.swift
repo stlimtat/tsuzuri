@@ -69,9 +69,10 @@ final class DebugLibraryModel {
         try await reload()
     }
 
-    /// Sets the Work's title and `updatedAt`, then saves it; a blank name changes nothing.
+    /// Sets the Work's title (trimmed) and `updatedAt`, then saves it; a blank name changes nothing.
     func rename(_ id: Work.ID, to name: String, at now: Date = Date()) async throws {
-        guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else { return }
         guard var work = try await store.works(kind: nil).first(where: { $0.id == id }) else {
             throw PersistenceError.notFound(id.uuidString)
         }

@@ -237,12 +237,12 @@
         }
       }
     },
-    "This removes the Work and its files from this device.": {
+    "This removes the Work and its files from this device, your other devices and iCloud.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This removes the Work and its files from this device."
+            "value": "This removes the Work and its files from this device, your other devices and iCloud."
           }
         }
       }

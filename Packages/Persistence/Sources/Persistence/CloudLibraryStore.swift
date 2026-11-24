@@ -171,7 +171,10 @@ public actor CloudLibraryStore: LibraryStore {
         try advance(to: changes.token)
 
         for ref in outbox.files {
-            try await files.copyIn(local.layout.fileURL(ref), as: ref)
+            // A queued file is gone from disk only because its Work was deleted: by a tombstone applied above,
+            // or here while this sync awaited. Nothing to upload, so it just leaves the queue.
+            let url = try local.layout.fileURL(ref)
+            if FileManager.default.fileExists(atPath: url.path) { try await files.copyIn(url, as: ref) }
             try updateOutbox { _ = $0.files.remove(ref) }
         }
         // A save made while this upload is in flight bumps its generation, so it stays queued for next time.

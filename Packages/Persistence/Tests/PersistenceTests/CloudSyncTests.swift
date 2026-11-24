@@ -197,6 +197,85 @@ import Testing
         #expect(await devices.b.syncStatus.first { _ in true } == .synced)
     }
 
+    /// B adds a Page that hasn't uploaded yet, then A's delete arrives: the queued file goes with the Work,
+    /// and B keeps syncing instead of failing on the missing file every time.
+    @Test(.timeLimit(.minutes(1))) func aRemoteDeleteDropsFilesStillQueuedOnThisDevice() async throws {
+        let devices = try TwoDevices()
+        let image = try await devices.a.store(file: tempFile("page", ext: "png"), kind: .pageImage)
+        let source = try await devices.a.store(file: tempFile("archive", ext: "cbz"), kind: .source)
+        var work = comic(title: "Doomed", pageImage: image, source: source)
+        work.updatedAt = Date().addingTimeInterval(-3600)
+        try await devices.a.save(work)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        let added = try await devices.b.store(file: tempFile("page two", ext: "png"), kind: .pageImage)
+        var edited = work
+        edited.chapters[0].pages.append(Page(imageRef: added, pixelSize: PixelSize(width: 10, height: 10), index: 1,
+                                             origin: .sourceEntry("2.png")))
+        edited.updatedAt = work.updatedAt.addingTimeInterval(60)
+        try await devices.b.save(edited)
+        try await devices.a.delete(work.id)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        let later = Work(kind: .book, title: "Made on B later", readingDirection: .leftToRight)
+        try await devices.b.save(later)
+        try await devices.b.sync()
+
+        #expect(try await devices.b.works(kind: nil) == [later])
+        #expect(await devices.records.all.map(\.workID) == [later.id])
+        #expect(await devices.files.all.isEmpty)
+        #expect(await devices.b.syncStatus.first { _ in true } == .synced)
+    }
+
+    /// The Work is deleted here while its first file uploads: its other queued file is gone from disk by the
+    /// time the sync reaches it, so the sync skips it and still finishes, leaving nothing in iCloud.
+    @Test(.timeLimit(.minutes(1))) func aLocalDeleteDuringAFileUploadDoesNotFailTheSync() async throws {
+        let devices = try TwoDevices()
+        let image = try await devices.a.store(file: tempFile("page", ext: "png"), kind: .pageImage)
+        let source = try await devices.a.store(file: tempFile("archive", ext: "cbz"), kind: .source)
+        let work = comic(title: "Deleted mid-upload", pageImage: image, source: source)
+        try await devices.a.save(work)
+        let a = devices.a, id = work.id
+        await devices.files.onCopyIn { try? await a.delete(id) }
+
+        try await devices.a.sync()
+
+        #expect(try await devices.a.works(kind: nil).isEmpty)
+        #expect(await devices.records.all.isEmpty)
+        #expect(await devices.files.all.isEmpty)
+        #expect(await devices.a.syncStatus.first { _ in true } == .synced)
+    }
+
+    /// A's older save is still uploading when B's newer one lands: iCloud keeps the newer, so both end on it.
+    @Test(.timeLimit(.minutes(1))) func anOlderUploadInFlightDoesNotReplaceANewerSave() async throws {
+        let devices = try TwoDevices()
+        let original = Work(kind: .book, title: "Original", readingDirection: .leftToRight)
+        try await devices.a.save(original)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        var earlier = original, later = original
+        earlier.title = "Earlier on A"
+        earlier.updatedAt = original.updatedAt.addingTimeInterval(10)
+        later.title = "Later on B"
+        later.updatedAt = original.updatedAt.addingTimeInterval(20)
+        try await devices.a.save(earlier)
+        let b = devices.b, newer = later
+        await devices.records.onUpload {
+            try? await b.save(newer)
+            try? await b.sync()
+        }
+        try await devices.a.sync()
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        #expect(try await devices.a.works(kind: nil) == [later])
+        #expect(try await devices.b.works(kind: nil) == [later])
+        #expect(await devices.records.all == [try WorkRecord(later)])
+    }
+
     /// The tombstone only covers saves up to `deletedAt`; a save made after the delete is a new version.
     @Test func aSaveOnBLaterThanTheDeleteSurvivesOnBoth() async throws {
         let devices = try TwoDevices()
@@ -565,8 +644,9 @@ import Testing
         try await devices.reopenA().sync()
 
         let tokens = await devices.records.fetchedSince
-        try #require(tokens.count == 2)
-        #expect(tokens[1] != nil)
+        let issued = await devices.records.issued
+        try #require(tokens.count == 2 && issued.count == 2)
+        #expect(tokens[1] == issued[0])
     }
 
     /// Something iCloud refused for another reason (e.g. the CloudKit schema isn't deployed): the status says

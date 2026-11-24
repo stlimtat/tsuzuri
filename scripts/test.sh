@@ -12,7 +12,8 @@ if [[ "$(xcode-select -p 2>/dev/null)" == *CommandLineTools* ]]; then
          -Xlinker -rpath -Xlinker "$dev/Frameworks" -Xlinker -rpath -Xlinker "$dev/usr/lib")
 fi
 
-packages=("${1:-}")
+named="${1:-}"
+packages=("$named")
 [[ -z "${packages[0]}" ]] && packages=($(ls Packages) App Scripts)
 shift || true
 for p in "${packages[@]}"; do
@@ -20,7 +21,11 @@ for p in "${packages[@]}"; do
   if [[ "$p" == Scripts ]]; then
     bash scripts/verify-archive.test.sh
   elif [[ "$p" == App ]]; then
-    if [[ ${#flags[@]} -gt 0 ]]; then echo "Skipped: the app's tests need Xcode, not Command Line Tools."; continue; fi
+    if [[ ${#flags[@]} -gt 0 ]]; then
+      # Asked for by name, a skip would look like a pass.
+      if [[ "$named" == App ]]; then echo "The app's tests need Xcode, not Command Line Tools." >&2; exit 1; fi
+      echo "Skipped: the app's tests need Xcode, not Command Line Tools."; continue
+    fi
     xcodebuild test -quiet -project Apps/iOS/Tsuzuri.xcodeproj -scheme TsuzuriTests -destination platform=macOS "$@"
   else
     swift test --package-path "Packages/$p" ${flags[@]+"${flags[@]}"} "$@"

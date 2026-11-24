@@ -4,9 +4,10 @@ import Synchronization
 @testable import Persistence
 
 /// An in-memory private record database with a change feed, like one CloudKit zone: every save or delete
-/// gets the next position in the feed, and a token is the position read up to.
+/// gets the next position in the feed, and a token is the position read up to. Like CloudKit's conditional
+/// save, a write that loses last-writer-wins to what the zone holds is dropped.
 actor FakeRecordSyncBackend: RecordSyncBackend {
-    private enum Entry { case record(WorkRecord), tombstone(Tombstone) }
+    private typealias Entry = RemoteEntry
     private var records: [Work.ID: (entry: Entry, position: UInt64)] = [:]
     private var position: UInt64 = 0
     /// Runs inside `save` before the records land, as if the upload were still in flight.
@@ -16,15 +17,19 @@ actor FakeRecordSyncBackend: RecordSyncBackend {
 
     /// The token each fetch asked from, in order.
     private(set) var fetchedSince: [ChangeToken?] = []
+    /// The token each fetch returned, in order.
+    private(set) var issued: [ChangeToken] = []
 
     func fetchChanges(since token: ChangeToken?) async throws -> RecordChanges {
         fetchedSince.append(token)
         let after = token.map { $0.rawValue.withUnsafeBytes { $0.loadUnaligned(as: UInt64.self) } } ?? 0
         let entries = records.values.filter { $0.position > after }.sorted { $0.position < $1.position }.map(\.entry)
+        let token = ChangeToken(rawValue: withUnsafeBytes(of: position) { Data($0) })
+        issued.append(token)
         return RecordChanges(
             changed: entries.compactMap { if case .record(let r) = $0 { r } else { nil } },
             deleted: entries.compactMap { if case .tombstone(let t) = $0 { t } else { nil } },
-            token: ChangeToken(rawValue: withUnsafeBytes(of: position) { Data($0) }))
+            token: token)
     }
 
     /// How many records have been uploaded, counting each upload of the same Work.
@@ -33,17 +38,17 @@ actor FakeRecordSyncBackend: RecordSyncBackend {
     func save(_ records: [WorkRecord]) async throws {
         if let hook = whileUploading { whileUploading = nil; await hook() }
         uploads += records.count
-        for record in records {
-            position += 1
-            self.records[record.workID] = (.record(record), position)
-        }
+        for record in records { write(.record(record), for: record.workID) }
     }
 
     func delete(_ tombstones: [Tombstone]) async throws {
-        for tombstone in tombstones {
-            position += 1
-            records[tombstone.workID] = (.tombstone(tombstone), position)
-        }
+        for tombstone in tombstones { write(.tombstone(tombstone), for: tombstone.workID) }
+    }
+
+    private func write(_ entry: Entry, for id: Work.ID) {
+        if let held = records[id]?.entry, !entry.replaces(held) { return }
+        position += 1
+        records[id] = (entry, position)
     }
 
     /// Every live (not deleted) record the service holds, for asserting what was uploaded.
@@ -57,6 +62,10 @@ actor FakeUbiquitousFileContainer: UbiquitousFileContainer {
     private var holdingUploads = false
 
     private var refusingRemovals = false
+    /// Runs inside the next `copyIn`, after the file is read and before it lands, as if the upload were in flight.
+    private var whileCopyingIn: (@Sendable () async -> Void)?
+
+    func onCopyIn(_ hook: @escaping @Sendable () async -> Void) { whileCopyingIn = hook }
 
     /// From now on, copied-in files stay "uploading": readable on this device, not yet in iCloud.
     func holdUploads() { holdingUploads = true }
@@ -64,7 +73,9 @@ actor FakeUbiquitousFileContainer: UbiquitousFileContainer {
     func refuseRemovals(_ refuse: Bool) { refusingRemovals = refuse }
 
     func copyIn(_ local: URL, as ref: FileRef) async throws {
-        files[ref] = try Data(contentsOf: local)
+        let data = try Data(contentsOf: local)
+        if let hook = whileCopyingIn { whileCopyingIn = nil; await hook() }
+        files[ref] = data
         if holdingUploads { uploading.insert(ref) }
     }
 

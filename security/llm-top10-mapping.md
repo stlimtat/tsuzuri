@@ -2,7 +2,7 @@
 
 _Owner: Lead · Required by `specs/R1/security.md` · Status: M1 skeleton_
 
-> **Edition: 2026** (LLM01:2026–LLM10:2026), from [OWASP GenAI LLM Top 10 2026](https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/), released September 2026. It replaces the 2025 list. Notable changes: Excessive Agency rose to LLM03, Improper Output Handling fell to LLM10, and System Prompt Leakage became Hidden Context Exposure (LLM08). Keep every item mapped when OWASP revises the list.
+> **Edition: 2026** (LLM01:2026–LLM10:2026), from [OWASP GenAI LLM Top 10 2026](https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/), published August 2026. It replaces the 2025 list. Notable changes: Excessive Agency rose to LLM03, Improper Output Handling fell to LLM10, and System Prompt Leakage became Hidden Context Exposure (LLM08). Keep every item mapped when OWASP revises the list.
 
 Release gate: every row has at least one passing automated test.
 

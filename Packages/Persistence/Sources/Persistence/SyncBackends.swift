@@ -65,9 +65,11 @@ public enum ICloudError: Error, Equatable, Sendable {
 public protocol RecordSyncBackend: Sendable {
     /// Every record changed since `token`; `nil` means from the beginning.
     func fetchChanges(since token: ChangeToken?) async throws -> RecordChanges
-    /// Saves the records, replacing any with the same Work ID.
+    /// Saves the records, each replacing the one held for its Work ID only if it wins whole-Work
+    /// last-writer-wins against it (`RemoteEntry.replaces`); a losing save is dropped without an error.
     func save(_ records: [WorkRecord]) async throws
-    /// Replaces each Work's record with its tombstone.
+    /// Replaces each Work's record with its tombstone, under the same last-writer-wins as `save`; a losing
+    /// tombstone is dropped without an error.
     func delete(_ tombstones: [Tombstone]) async throws
 }
 
