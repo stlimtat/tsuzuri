@@ -33,7 +33,7 @@ jobs:
 
   ui:
     name: UI flow tests (iOS Simulator)
-    runs-on: macos-15
+    runs-on: macos-26
     # Unverified on the hosted runner (its Xcode may lack the iOS 26 runtime or an iPhone 17 simulator), so it
     # reports without blocking until a green run shows it works there.
     continue-on-error: true
