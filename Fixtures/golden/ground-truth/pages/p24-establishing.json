@@ -1,0 +1,233 @@
+{
+  "id" : "p24-establishing",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "なつやす",
+              "start" : 0
+            },
+            {
+              "length" : 2,
+              "reading" : "そふ",
+              "start" : 4
+            },
+            {
+              "length" : 1,
+              "reading" : "むら",
+              "start" : 7
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.0488,
+              0.0415
+            ],
+            [
+              0.452,
+              0.0415
+            ],
+            [
+              0.452,
+              0.106
+            ],
+            [
+              0.0488,
+              0.106
+            ]
+          ],
+          "sfx" : false,
+          "text" : "夏休み、祖父の村にて。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.02
+        ],
+        [
+          0.98,
+          0.02
+        ],
+        [
+          0.98,
+          0.45
+        ],
+        [
+          0.02,
+          0.45
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "こえ",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.0386,
+              0.4904
+            ],
+            [
+              0.3114,
+              0.4904
+            ],
+            [
+              0.3114,
+              0.5975
+            ],
+            [
+              0.0386,
+              0.5975
+            ]
+          ],
+          "sfx" : false,
+          "text" : "セミの声がすごい。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.47
+        ],
+        [
+          0.33,
+          0.47
+        ],
+        [
+          0.33,
+          0.98
+        ],
+        [
+          0.02,
+          0.98
+        ]
+      ],
+      "readingIndex" : 1
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "ひ",
+              "start" : 4
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.3636,
+              0.674
+            ],
+            [
+              0.6364,
+              0.674
+            ],
+            [
+              0.6364,
+              0.7862
+            ],
+            [
+              0.3636,
+              0.7862
+            ]
+          ],
+          "sfx" : false,
+          "text" : "スイカ、冷えてるよ。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.345,
+          0.47
+        ],
+        [
+          0.655,
+          0.47
+        ],
+        [
+          0.655,
+          0.98
+        ],
+        [
+          0.345,
+          0.98
+        ]
+      ],
+      "readingIndex" : 2
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.6886,
+              0.827
+            ],
+            [
+              0.9614,
+              0.827
+            ],
+            [
+              0.9614,
+              0.929
+            ],
+            [
+              0.6886,
+              0.929
+            ]
+          ],
+          "sfx" : false,
+          "text" : "いただきます！",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.67,
+          0.47
+        ],
+        [
+          0.98,
+          0.47
+        ],
+        [
+          0.98,
+          0.98
+        ],
+        [
+          0.67,
+          0.98
+        ]
+      ],
+      "readingIndex" : 3
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "leftToRight",
+  "schemaVersion" : 1
+}

@@ -1,0 +1,383 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000000000000000000018 /* p01-vertical-grid.png in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000007 /* p01-vertical-grid.png */; };
+		A10000000000000000000024 /* ComicStructure in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000020 /* ComicStructure */; };
+		A10000000000000000000025 /* Persistence in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000021 /* Persistence */; };
+		A10000000000000000000026 /* ComicStructure in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000022 /* ComicStructure */; };
+		A10000000000000000000027 /* Persistence in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000023 /* Persistence */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A1000000000000000000000B /* Tsuzuri-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tsuzuri-Info.plist"; sourceTree = "<group>"; };
+		A1000000000000000000000C /* ExportOptions.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ExportOptions.plist; sourceTree = "<group>"; };
+		A10000000000000000000006 /* Tsuzuri.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Tsuzuri.entitlements; sourceTree = "<group>"; };
+		A10000000000000000000007 /* p01-vertical-grid.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "p01-vertical-grid.png"; path = "../../Fixtures/golden/pages/p01-vertical-grid.png"; sourceTree = SOURCE_ROOT; };
+		A10000000000000000000009 /* Tsuzuri.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tsuzuri.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1000000000000000000000A /* TsuzuriTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TsuzuriTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		A10000000000000000000003 /* Tsuzuri */ = {isa = PBXFileSystemSynchronizedRootGroup; path = Tsuzuri; sourceTree = "<group>"; };
+		A10000000000000000000004 /* LibraryDebug */ = {isa = PBXFileSystemSynchronizedRootGroup; path = LibraryDebug; sourceTree = "<group>"; };
+		A10000000000000000000005 /* TsuzuriTests */ = {isa = PBXFileSystemSynchronizedRootGroup; path = TsuzuriTests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A10000000000000000000012 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000024 /* ComicStructure in Frameworks */,
+				A10000000000000000000025 /* Persistence in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000016 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000026 /* ComicStructure in Frameworks */,
+				A10000000000000000000027 /* Persistence in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A10000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000003 /* Tsuzuri */,
+				A10000000000000000000004 /* LibraryDebug */,
+				A10000000000000000000005 /* TsuzuriTests */,
+				A10000000000000000000006 /* Tsuzuri.entitlements */,
+				A1000000000000000000000B /* Tsuzuri-Info.plist */,
+				A1000000000000000000000C /* ExportOptions.plist */,
+				A10000000000000000000007 /* p01-vertical-grid.png */,
+				A10000000000000000000008 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A10000000000000000000008 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000009 /* Tsuzuri.app */,
+				A1000000000000000000000A /* TsuzuriTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A10000000000000000000010 /* Tsuzuri */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000043 /* Build configuration list for PBXNativeTarget "Tsuzuri" */;
+			buildPhases = (
+				A10000000000000000000011 /* Sources */,
+				A10000000000000000000012 /* Frameworks */,
+				A10000000000000000000013 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A10000000000000000000003 /* Tsuzuri */,
+				A10000000000000000000004 /* LibraryDebug */,
+			);
+			name = Tsuzuri;
+			packageProductDependencies = (
+				A10000000000000000000020 /* ComicStructure */,
+				A10000000000000000000021 /* Persistence */,
+			);
+			productName = Tsuzuri;
+			productReference = A10000000000000000000009 /* Tsuzuri.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A10000000000000000000014 /* TsuzuriTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000046 /* Build configuration list for PBXNativeTarget "TsuzuriTests" */;
+			buildPhases = (
+				A10000000000000000000015 /* Sources */,
+				A10000000000000000000016 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A10000000000000000000004 /* LibraryDebug */,
+				A10000000000000000000005 /* TsuzuriTests */,
+			);
+			name = TsuzuriTests;
+			packageProductDependencies = (
+				A10000000000000000000022 /* ComicStructure */,
+				A10000000000000000000023 /* Persistence */,
+			);
+			productName = TsuzuriTests;
+			productReference = A1000000000000000000000A /* TsuzuriTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A10000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+			};
+			buildConfigurationList = A10000000000000000000040 /* Build configuration list for PBXProject "Tsuzuri" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A10000000000000000000002;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A10000000000000000000030 /* XCLocalSwiftPackageReference "../../Packages/ComicStructure" */,
+				A10000000000000000000031 /* XCLocalSwiftPackageReference "../../Packages/Persistence" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = A10000000000000000000008 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A10000000000000000000010 /* Tsuzuri */,
+				A10000000000000000000014 /* TsuzuriTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A10000000000000000000013 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000018 /* p01-vertical-grid.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A10000000000000000000011 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000015 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A10000000000000000000041 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+				TSUZURI_BUNDLE_ID = net.stlim.tsuzuri;
+				TSUZURI_COMMIT = "";
+				TSUZURI_ICLOUD_ENVIRONMENT = Development;
+				TSUZURI_PROVISIONING_PROFILE = "";
+			};
+			name = Debug;
+		};
+		A10000000000000000000042 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TSUZURI_BUNDLE_ID = net.stlim.tsuzuri;
+				TSUZURI_COMMIT = "";
+				TSUZURI_ICLOUD_ENVIRONMENT = Production;
+				TSUZURI_PROVISIONING_PROFILE = "";
+			};
+			name = Release;
+		};
+		A10000000000000000000044 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Tsuzuri.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Tsuzuri-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Tsuzuri;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TSUZURI_BUNDLE_ID)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(TSUZURI_PROVISIONING_PROFILE)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A10000000000000000000045 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Tsuzuri.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Tsuzuri-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Tsuzuri;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TSUZURI_BUNDLE_ID)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "$(TSUZURI_PROVISIONING_PROFILE)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A10000000000000000000047 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TSUZURI_BUNDLE_ID).tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A10000000000000000000048 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TSUZURI_BUNDLE_ID).tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A10000000000000000000040 /* Build configuration list for PBXProject "Tsuzuri" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000041 /* Debug */,
+				A10000000000000000000042 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000043 /* Build configuration list for PBXNativeTarget "Tsuzuri" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000044 /* Debug */,
+				A10000000000000000000045 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000046 /* Build configuration list for PBXNativeTarget "TsuzuriTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000047 /* Debug */,
+				A10000000000000000000048 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		A10000000000000000000030 /* XCLocalSwiftPackageReference "../../Packages/ComicStructure" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../Packages/ComicStructure;
+		};
+		A10000000000000000000031 /* XCLocalSwiftPackageReference "../../Packages/Persistence" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../Packages/Persistence;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A10000000000000000000020 /* ComicStructure */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ComicStructure;
+		};
+		A10000000000000000000021 /* Persistence */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Persistence;
+		};
+		A10000000000000000000022 /* ComicStructure */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ComicStructure;
+		};
+		A10000000000000000000023 /* Persistence */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Persistence;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A10000000000000000000001 /* Project object */;
+}

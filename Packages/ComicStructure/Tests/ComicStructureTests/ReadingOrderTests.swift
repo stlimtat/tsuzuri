@@ -46,6 +46,66 @@ import Testing
         #expect(Double(matched) / Double(total) >= 0.95, "\(matched)/\(total) Panels in ground-truth order")
     }
 
+    /// The generated golden Pages: each Page on its own, except a spread's Pages, read together with their
+    /// two-Page Panels, and a two-pages-in-one scan, read once cut at its expected cut.
+    @Test func matchesGeneratedPagesGroundTruth() throws {
+        let golden = GoldenSet()
+        let spreadPageIDs = Set(golden.spreads.flatMap(\.pageIDs))
+        let units: [(name: String, direction: ReadingDirection, pages: [GoldenSet.GoldenPage], canvas: [GoldenSet.GoldenPanel])] =
+            golden.pages.filter { !spreadPageIDs.contains($0.id) && $0.expectedCut == nil }.map { ($0.id, $0.readingDirection, [$0], []) }
+            + golden.spreads.map { spread in
+                (spread.id, spread.readingDirection, spread.pageIDs.compactMap { id in golden.pages.first { $0.id == id } },
+                 spread.panels)
+            }
+        var matched = 0, total = 0
+        for scan in golden.pages where scan.expectedCut != nil {
+            let (order, expected) = try readingOrder(cutting: scan)
+            matched += zip(order, expected).filter { $0 == $1 }.count
+            total += expected.count
+        }
+        for unit in units {
+            let pages = unit.pages.indices.map(makePage)
+            var panels = unit.canvas.map { p in
+                Panel(pageIDs: pages.map(\.id), shape: p.shape, readingIndex: p.readingIndex)
+            }
+            for (page, golden) in zip(pages, unit.pages) {
+                panels += golden.panels.map { Panel(pageIDs: [page.id], shape: $0.shape, readingIndex: $0.readingIndex) }
+            }
+            let expected = panels.sorted { $0.readingIndex < $1.readingIndex }.map(\.id)
+            let chapter = Chapter(title: unit.name, index: 0, pages: pages, panels: panels.reversed())
+            let order = editor.readingOrder(for: chapter, direction: unit.direction)
+            let hits = zip(order, expected).filter { $0 == $1 }.count
+            if hits != expected.count { print("reading order mismatch on \(unit.name)") }
+            matched += hits
+            total += expected.count
+        }
+        #expect(total >= 100)  // the generated Pages loaded
+        #expect(Double(matched) / Double(total) >= 0.95, "\(matched)/\(total) Panels in ground-truth order")
+    }
+
+    /// A two-pages-in-one scan reads in ground-truth order once cut into its two Pages at its expected cut.
+    @Test func scansMatchGroundTruthOnceCut() throws {
+        let scans = GoldenSet().pages.filter { $0.expectedCut != nil }
+        #expect(scans.count >= 2)
+        for scan in scans {
+            let (order, expected) = try readingOrder(cutting: scan)
+            #expect(order == expected, "\(scan.id)")
+        }
+    }
+
+    /// Reading order of a scan's Panels after cutting it the way a user would, and the ground-truth order.
+    func readingOrder(cutting scan: GoldenSet.GoldenPage) throws -> (order: [UUID], expected: [UUID]) {
+        let page = makePage(0)
+        let panels = scan.panels.sorted { $0.readingIndex < $1.readingIndex }
+            .map { Panel(pageIDs: [page.id], shape: $0.shape, readingIndex: $0.readingIndex) }
+        let work = Work(createdAt: fixedDate, kind: .comic, title: scan.id, readingDirection: scan.readingDirection,
+                        chapters: [Chapter(createdAt: fixedDate, title: scan.id, index: 0, pages: [page], panels: panels)])
+        let cut = try #require(scan.expectedCut?.cut, "\(scan.id) has no expected cut")
+        let split = try #require(try editor.apply(.splitPage(page.id, cut: cut, firstPageID: UUID(), secondPageID: UUID()),
+                                                  to: work).work)
+        return (editor.readingOrder(for: split.chapters[0], direction: scan.readingDirection), panels.map(\.id))
+    }
+
     @Test func recomputeReadingOrderAppliesGeometry() throws {
         var work = makeWork()
         // Swap the two Panels on Page 0 so the left one comes first, then recompute.

@@ -105,13 +105,13 @@ A shared fixture set in `/Fixtures/golden`, owned by the Lead, used by every mod
 | # | Milestone | Exit criteria |
 |---|---|---|
 | M0 | **Trials** (2–3 weeks) | Vertical OCR: compare 2+ cloud options on the golden set (accuracy, cost per Bubble). Video: compare 3+ providers on acting quality, Character consistency, voice consistency across 3 Renders of one Character, refusal rate on manga-style Panels, cost per second, retention policy. Pick 2 video providers and 1 OCR provider. Decide the voice approach (ADR 0001 open point). |
-| M1 | Foundations | Monorepo, CI, `ComicStructure` v1, Persistence, golden set, security pipeline skeleton |
+| M1 | Foundations | Monorepo, CI, `ComicStructure` v1, Persistence, golden set, security pipeline skeleton; an internal TestFlight build installed on the Lead's devices, with iCloud sync of Work records and files between them |
 | M2 | Import + Library + Comic editing | CBZ/ZIP/images import, Chapter/Page/Panel editing with undo |
 | M3 | Text | Bubbles, orientation, on-device OCR + translation; cloud vertical OCR behind sign-in and entitlement |
 | M4 | Player + Read-aloud | Panel-by-Panel reading in Story and Learn modes |
 | M5 | Cast + Renders | Cast tagging, Render jobs end to end with 2 providers, push notification, iCloud backup |
 | M6 | Payments + hardening | Subscription, credit packs, BYOK, consumption limits; external pen test passed |
-| M7 | Beta → App Store | TestFlight with learners and fans; App Store review |
+| M7 | Beta → App Store | External TestFlight with learners and fans; App Store review |
 
 ## 10. Pricing and unit economics
 
@@ -139,3 +139,4 @@ A shared fixture set in `/Fixtures/golden`, owned by the Lead, used by every mod
 | 0004 | On-device first; cloud only where the device can't do the job, and always paid |
 | 0005 | BYOK is for paying subscribers only and goes through our backend |
 | 0006 | Security baseline (OWASP LLM Top 10 2026, MASVS, API Top 10) and a pen test gate |
+| 0007 | The Library is one versioned JSON record per Work synced through CloudKit, not SwiftData; whole-Work last-writer-wins and tombstones in M1, per-entity merge before multi-device editing |

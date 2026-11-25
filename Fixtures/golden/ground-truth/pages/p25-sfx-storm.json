@@ -1,0 +1,277 @@
+{
+  "id" : "p25-sfx-storm",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "かみなり",
+              "start" : 0
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.74,
+              0.058
+            ],
+            [
+              0.9032,
+              0.058
+            ],
+            [
+              0.9032,
+              0.324
+            ],
+            [
+              0.74,
+              0.324
+            ]
+          ],
+          "sfx" : false,
+          "text" : "雷だ……",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.116,
+              0.039
+            ],
+            [
+              0.308,
+              0.039
+            ],
+            [
+              0.308,
+              0.381
+            ],
+            [
+              0.116,
+              0.381
+            ]
+          ],
+          "sfx" : true,
+          "text" : "ゴロゴロ",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.02
+        ],
+        [
+          0.98,
+          0.02
+        ],
+        [
+          0.98,
+          0.4
+        ],
+        [
+          0.02,
+          0.4
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "ていでん",
+              "start" : 0
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.8014,
+              0.4368
+            ],
+            [
+              0.9424,
+              0.4368
+            ],
+            [
+              0.9424,
+              0.6832
+            ],
+            [
+              0.8014,
+              0.6832
+            ]
+          ],
+          "sfx" : false,
+          "text" : "停電？",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.51,
+          0.42
+        ],
+        [
+          0.98,
+          0.42
+        ],
+        [
+          0.98,
+          0.7
+        ],
+        [
+          0.51,
+          0.7
+        ]
+      ],
+      "readingIndex" : 1
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.161,
+              0.4424
+            ],
+            [
+              0.349,
+              0.4424
+            ],
+            [
+              0.349,
+              0.6776
+            ],
+            [
+              0.161,
+              0.6776
+            ]
+          ],
+          "sfx" : true,
+          "text" : "ピカッ",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.42
+        ],
+        [
+          0.49,
+          0.42
+        ],
+        [
+          0.49,
+          0.7
+        ],
+        [
+          0.02,
+          0.7
+        ]
+      ],
+      "readingIndex" : 2
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 4,
+              "reading" : "かいちゅうでんとう",
+              "start" : 0
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.74,
+              0.7356
+            ],
+            [
+              0.9032,
+              0.7356
+            ],
+            [
+              0.9032,
+              0.9644
+            ],
+            [
+              0.74,
+              0.9644
+            ]
+          ],
+          "sfx" : false,
+          "text" : "懐中電灯どこ？",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.164,
+              0.7408
+            ],
+            [
+              0.356,
+              0.7408
+            ],
+            [
+              0.356,
+              0.9592
+            ],
+            [
+              0.164,
+              0.9592
+            ]
+          ],
+          "sfx" : true,
+          "text" : "ザーッ",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.72
+        ],
+        [
+          0.98,
+          0.72
+        ],
+        [
+          0.98,
+          0.98
+        ],
+        [
+          0.02,
+          0.98
+        ]
+      ],
+      "readingIndex" : 3
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "rightToLeft",
+  "schemaVersion" : 1
+}

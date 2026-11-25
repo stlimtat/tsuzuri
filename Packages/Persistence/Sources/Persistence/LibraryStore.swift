@@ -27,30 +27,25 @@ public protocol LibraryStore: Sendable {
     func delete(_ workID: Work.ID) async throws
     /// Downloads the file first if only iCloud has it.
     func fileURL(for ref: FileRef) async throws -> URL
+    /// Whether the file is on this device, so it opens without downloading.
+    func isDownloaded(_ ref: FileRef) async throws -> Bool
     func store(file: URL, kind: FileKind) async throws -> FileRef
     func evictLocalCopy(_ ref: FileRef) async throws
     var syncStatus: AsyncStream<SyncStatus> { get }
 }
 
 /// The Library on this device: one versioned JSON record per Work in `works/`, files in `files/<kind>/`.
-// ponytail: local only, so it reports `.offline` and refuses eviction. iCloud sync (CloudKit for records,
-// the iCloud Drive container for files) needs the app target's entitlements and lands with the App Shell.
+// Local only, so it reports `.offline` and refuses eviction; `CloudLibraryStore` is the synced Library.
 public actor LocalLibraryStore: LibraryStore {
-    let root: URL
-    private var worksDir: URL { root.appending(path: "works", directoryHint: .isDirectory) }
-    private var filesDir: URL { root.appending(path: "files", directoryHint: .isDirectory) }
+    let layout: LibraryLayout
 
     public init(root: URL) throws {
-        self.root = root
-        let fm = FileManager.default
-        try fm.createDirectory(at: root.appending(path: "works"), withIntermediateDirectories: true)
-        for kind in FileKind.allCases {
-            try fm.createDirectory(at: root.appending(path: "files/\(kind.rawValue)"), withIntermediateDirectories: true)
-        }
+        layout = LibraryLayout(root: root)
+        try layout.createDirectories()
     }
 
     public func works(kind: WorkKind?) async throws -> [Work] {
-        let urls = try FileManager.default.contentsOfDirectory(at: worksDir, includingPropertiesForKeys: nil)
+        let urls = try FileManager.default.contentsOfDirectory(at: layout.worksDir, includingPropertiesForKeys: nil)
             .filter { $0.pathExtension == "json" }
         let works = try urls.map { url in
             do { return try ComicSchema.decode(Data(contentsOf: url)) } catch {
@@ -63,31 +58,51 @@ public actor LocalLibraryStore: LibraryStore {
     /// Rejects a Work that breaks an invariant, so one bad save can't make the Library unreadable.
     public func save(_ work: Work) async throws {
         try Invariants.validate(work)
-        try ComicSchema.encode(work).write(to: recordURL(work.id), options: [.atomic, .completeFileProtection])
+        try ComicSchema.encode(work).write(to: layout.recordURL(work.id), options: [.atomic, .completeFileProtection])
     }
 
-    public func delete(_ workID: Work.ID) async throws {
-        let url = recordURL(workID)
-        guard FileManager.default.fileExists(atPath: url.path) else { throw PersistenceError.notFound(workID.uuidString) }
-        let work = try ComicSchema.decode(Data(contentsOf: url))
+    /// The Work with this ID, or nil if the Library has none.
+    func work(_ id: Work.ID) throws -> Work? {
+        let url = layout.recordURL(id)
+        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
+        do { return try ComicSchema.decode(Data(contentsOf: url)) } catch {
+            throw PersistenceError.corruptRecord(url.lastPathComponent, underlying: String(describing: error))
+        }
+    }
+
+    public func delete(_ workID: Work.ID) async throws { _ = try remove(workID) }
+
+    /// Deletes the Work and its files, returning what was deleted.
+    func remove(_ workID: Work.ID) throws -> Work {
+        guard let work = try work(workID) else { throw PersistenceError.notFound(workID.uuidString) }
+        try removeWork(work)
+        return work
+    }
+
+    /// Removes the Work's record, then every file it references.
+    func removeWork(_ work: Work) throws {
         // Record first: a failure part-way leaves orphaned files, never a Work pointing at missing files.
-        try FileManager.default.removeItem(at: url)
+        try FileManager.default.removeItem(at: layout.recordURL(work.id))
         for ref in work.fileRefs {
-            let file = try localURL(ref)
+            let file = try layout.fileURL(ref)
             if FileManager.default.fileExists(atPath: file.path) { try FileManager.default.removeItem(at: file) }
         }
     }
 
     public func fileURL(for ref: FileRef) async throws -> URL {
-        let url = try localURL(ref)
+        let url = try layout.fileURL(ref)
         guard FileManager.default.fileExists(atPath: url.path) else { throw PersistenceError.notFound(ref.id) }
         return url
+    }
+
+    public func isDownloaded(_ ref: FileRef) async throws -> Bool {
+        FileManager.default.fileExists(atPath: try layout.fileURL(ref).path)
     }
 
     public func store(file: URL, kind: FileKind) async throws -> FileRef {
         let ext = file.pathExtension.lowercased()
         let ref = FileRef("\(kind.rawValue)/\(UUID().uuidString)" + (ext.isEmpty ? "" : ".\(ext)"))
-        try FileManager.default.copyItem(at: file, to: try localURL(ref))
+        try FileManager.default.copyItem(at: file, to: try layout.fileURL(ref))
         return ref
     }
 
@@ -98,29 +113,5 @@ public actor LocalLibraryStore: LibraryStore {
 
     public nonisolated var syncStatus: AsyncStream<SyncStatus> {
         AsyncStream { $0.yield(.offline); $0.finish() }
-    }
-
-    private func recordURL(_ id: UUID) -> URL { worksDir.appending(path: "\(id.uuidString).json") }
-
-    /// Resolves a FileRef strictly: `<kind>/<uuid>` with an optional short alphanumeric extension.
-    private func localURL(_ ref: FileRef) throws -> URL {
-        let parts = ref.id.split(separator: "/", omittingEmptySubsequences: false)
-        guard parts.count == 2, FileKind(rawValue: String(parts[0])) != nil else { throw PersistenceError.invalidFileRef(ref.id) }
-        let name = parts[1].split(separator: ".", maxSplits: 1, omittingEmptySubsequences: false)
-        guard UUID(uuidString: String(name[0])) != nil,
-              name.count == 1 || (1...10).contains(name[1].count) && name[1].allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber) })
-        else { throw PersistenceError.invalidFileRef(ref.id) }
-        return filesDir.appending(path: ref.id)
-    }
-}
-
-extension Work {
-    /// Every file this Work references.
-    var fileRefs: Set<FileRef> {
-        var refs = Set(sources.map(\.fileRef))
-        refs.formUnion(chapters.flatMap(\.pages).map(\.imageRef))
-        refs.formUnion(cast.characters.flatMap(\.referenceCrops))
-        refs.formUnion(renders.compactMap(\.videoRef))
-        return refs
     }
 }

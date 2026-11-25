@@ -1,0 +1,237 @@
+{
+  "id" : "p10-slanted-match",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 4,
+              "reading" : "しあいかいし",
+              "start" : 0
+            },
+            {
+              "length" : 2,
+              "reading" : "ごふん",
+              "start" : 8
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.05,
+              0.05
+            ],
+            [
+              0.47,
+              0.05
+            ],
+            [
+              0.47,
+              0.19
+            ],
+            [
+              0.05,
+              0.19
+            ]
+          ],
+          "sfx" : false,
+          "text" : "試合開始まであと五分！",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.02
+        ],
+        [
+          0.58,
+          0.02
+        ],
+        [
+          0.54,
+          0.4
+        ],
+        [
+          0.02,
+          0.4
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "きんちょう",
+              "start" : 0
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.64,
+              0.2
+            ],
+            [
+              0.95,
+              0.2
+            ],
+            [
+              0.95,
+              0.34
+            ],
+            [
+              0.64,
+              0.34
+            ]
+          ],
+          "sfx" : false,
+          "text" : "緊張してきた……",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.6,
+          0.02
+        ],
+        [
+          0.98,
+          0.02
+        ],
+        [
+          0.98,
+          0.4
+        ],
+        [
+          0.56,
+          0.4
+        ]
+      ],
+      "readingIndex" : 1
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 3,
+              "reading" : "だいじょうぶ",
+              "start" : 0
+            },
+            {
+              "length" : 1,
+              "reading" : "どお",
+              "start" : 7
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.1,
+              0.45
+            ],
+            [
+              0.7,
+              0.45
+            ],
+            [
+              0.7,
+              0.6
+            ],
+            [
+              0.1,
+              0.6
+            ]
+          ],
+          "sfx" : false,
+          "text" : "大丈夫、いつも通りにやろう。",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.42
+        ],
+        [
+          0.98,
+          0.42
+        ],
+        [
+          0.98,
+          0.66
+        ],
+        [
+          0.02,
+          0.7
+        ]
+      ],
+      "readingIndex" : 2
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "い",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.4,
+              0.8
+            ],
+            [
+              0.9,
+              0.8
+            ],
+            [
+              0.9,
+              0.92
+            ],
+            [
+              0.4,
+              0.92
+            ]
+          ],
+          "sfx" : false,
+          "text" : "よし、行くぞ！",
+          "textOrientation" : "horizontal"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.72
+        ],
+        [
+          0.98,
+          0.68
+        ],
+        [
+          0.98,
+          0.98
+        ],
+        [
+          0.02,
+          0.98
+        ]
+      ],
+      "readingIndex" : 3
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "leftToRight",
+  "schemaVersion" : 1
+}

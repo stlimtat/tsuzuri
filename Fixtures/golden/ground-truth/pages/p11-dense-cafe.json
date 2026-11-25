@@ -1,0 +1,542 @@
+{
+  "id" : "p11-dense-cafe",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "なに",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.8014,
+              0.0386
+            ],
+            [
+              0.9424,
+              0.0386
+            ],
+            [
+              0.9424,
+              0.3114
+            ],
+            [
+              0.8014,
+              0.3114
+            ]
+          ],
+          "sfx" : false,
+          "text" : "ねえ、何にする？",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "まよ",
+              "start" : 0
+            },
+            {
+              "length" : 2,
+              "reading" : "ぜんぶ",
+              "start" : 5
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.5476,
+              0.0386
+            ],
+            [
+              0.6886,
+              0.0386
+            ],
+            [
+              0.6886,
+              0.3114
+            ],
+            [
+              0.5476,
+              0.3114
+            ]
+          ],
+          "sfx" : false,
+          "text" : "迷うなあ。全部おいしそう。",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.51,
+          0.02
+        ],
+        [
+          0.98,
+          0.02
+        ],
+        [
+          0.98,
+          0.33
+        ],
+        [
+          0.51,
+          0.33
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "きせつ",
+              "start" : 0
+            },
+            {
+              "length" : 2,
+              "reading" : "げんてい",
+              "start" : 2
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.3114,
+              0.0386
+            ],
+            [
+              0.4524,
+              0.0386
+            ],
+            [
+              0.4524,
+              0.3114
+            ],
+            [
+              0.3114,
+              0.3114
+            ]
+          ],
+          "sfx" : false,
+          "text" : "季節限定のケーキは？",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "くり",
+              "start" : 0
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.0576,
+              0.0386
+            ],
+            [
+              0.1986,
+              0.0386
+            ],
+            [
+              0.1986,
+              0.3114
+            ],
+            [
+              0.0576,
+              0.3114
+            ]
+          ],
+          "sfx" : false,
+          "text" : "栗のやつ？いいね。",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.02
+        ],
+        [
+          0.49,
+          0.02
+        ],
+        [
+          0.49,
+          0.33
+        ],
+        [
+          0.02,
+          0.33
+        ]
+      ],
+      "readingIndex" : 1
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "の",
+              "start" : 0
+            },
+            {
+              "length" : 1,
+              "reading" : "もの",
+              "start" : 2
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.8014,
+              0.3636
+            ],
+            [
+              0.9424,
+              0.3636
+            ],
+            [
+              0.9424,
+              0.6364
+            ],
+            [
+              0.8014,
+              0.6364
+            ]
+          ],
+          "sfx" : false,
+          "text" : "飲み物はどうする？",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "わたし",
+              "start" : 0
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.5476,
+              0.3636
+            ],
+            [
+              0.6886,
+              0.3636
+            ],
+            [
+              0.6886,
+              0.6364
+            ],
+            [
+              0.5476,
+              0.6364
+            ]
+          ],
+          "sfx" : false,
+          "text" : "私はミルクティー。",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.51,
+          0.345
+        ],
+        [
+          0.98,
+          0.345
+        ],
+        [
+          0.98,
+          0.655
+        ],
+        [
+          0.51,
+          0.655
+        ]
+      ],
+      "readingIndex" : 2
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "わたし",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.3114,
+              0.3636
+            ],
+            [
+              0.4524,
+              0.3636
+            ],
+            [
+              0.4524,
+              0.6364
+            ],
+            [
+              0.3114,
+              0.6364
+            ]
+          ],
+          "sfx" : false,
+          "text" : "じゃあ私はコーヒーで。",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "さとう",
+              "start" : 0
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.0576,
+              0.3636
+            ],
+            [
+              0.1986,
+              0.3636
+            ],
+            [
+              0.1986,
+              0.6364
+            ],
+            [
+              0.0576,
+              0.6364
+            ]
+          ],
+          "sfx" : false,
+          "text" : "砂糖はいらないの？",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.345
+        ],
+        [
+          0.49,
+          0.345
+        ],
+        [
+          0.49,
+          0.655
+        ],
+        [
+          0.02,
+          0.655
+        ]
+      ],
+      "readingIndex" : 3
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "さいきん",
+              "start" : 0
+            },
+            {
+              "length" : 1,
+              "reading" : "あま",
+              "start" : 3
+            },
+            {
+              "length" : 1,
+              "reading" : "ひか",
+              "start" : 7
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.8014,
+              0.6886
+            ],
+            [
+              0.9424,
+              0.6886
+            ],
+            [
+              0.9424,
+              0.9614
+            ],
+            [
+              0.8014,
+              0.9614
+            ]
+          ],
+          "sfx" : false,
+          "text" : "最近、甘いのは控えてるの。",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "た",
+              "start" : 4
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.5476,
+              0.6886
+            ],
+            [
+              0.6886,
+              0.6886
+            ],
+            [
+              0.6886,
+              0.9614
+            ],
+            [
+              0.5476,
+              0.9614
+            ]
+          ],
+          "sfx" : false,
+          "text" : "ケーキは食べるのに？",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.51,
+          0.67
+        ],
+        [
+          0.98,
+          0.67
+        ],
+        [
+          0.98,
+          0.98
+        ],
+        [
+          0.51,
+          0.98
+        ]
+      ],
+      "readingIndex" : 4
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "べつばら",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.3114,
+              0.6886
+            ],
+            [
+              0.4524,
+              0.6886
+            ],
+            [
+              0.4524,
+              0.9614
+            ],
+            [
+              0.3114,
+              0.9614
+            ]
+          ],
+          "sfx" : false,
+          "text" : "それは別腹だから！",
+          "textOrientation" : "vertical"
+        },
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.0576,
+              0.6886
+            ],
+            [
+              0.1986,
+              0.6886
+            ],
+            [
+              0.1986,
+              0.9614
+            ],
+            [
+              0.0576,
+              0.9614
+            ]
+          ],
+          "sfx" : false,
+          "text" : "ずるいなあ、もう。",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.67
+        ],
+        [
+          0.49,
+          0.67
+        ],
+        [
+          0.49,
+          0.98
+        ],
+        [
+          0.02,
+          0.98
+        ]
+      ],
+      "readingIndex" : 5
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "rightToLeft",
+  "schemaVersion" : 1
+}

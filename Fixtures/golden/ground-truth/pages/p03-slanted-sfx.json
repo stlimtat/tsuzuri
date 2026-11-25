@@ -1,0 +1,215 @@
+{
+  "id" : "p03-slanted-sfx",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "おと",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.8,
+              0.05
+            ],
+            [
+              0.94,
+              0.05
+            ],
+            [
+              0.94,
+              0.3
+            ],
+            [
+              0.8,
+              0.3
+            ]
+          ],
+          "sfx" : false,
+          "text" : "なんの音？",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.54,
+          0.02
+        ],
+        [
+          0.98,
+          0.02
+        ],
+        [
+          0.98,
+          0.48
+        ],
+        [
+          0.46,
+          0.48
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.1,
+              0.06
+            ],
+            [
+              0.3,
+              0.06
+            ],
+            [
+              0.3,
+              0.42
+            ],
+            [
+              0.1,
+              0.42
+            ]
+          ],
+          "sfx" : true,
+          "text" : "ドン！",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.02
+        ],
+        [
+          0.52,
+          0.02
+        ],
+        [
+          0.44,
+          0.48
+        ],
+        [
+          0.02,
+          0.48
+        ]
+      ],
+      "readingIndex" : 1
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.78,
+              0.56
+            ],
+            [
+              0.94,
+              0.56
+            ],
+            [
+              0.94,
+              0.84
+            ],
+            [
+              0.78,
+              0.84
+            ]
+          ],
+          "sfx" : false,
+          "text" : "外を見てくる。",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.4,
+          0.52
+        ],
+        [
+          0.98,
+          0.52
+        ],
+        [
+          0.98,
+          0.98
+        ],
+        [
+          0.58,
+          0.98
+        ]
+      ],
+      "readingIndex" : 2
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.06,
+              0.6
+            ],
+            [
+              0.22,
+              0.6
+            ],
+            [
+              0.22,
+              0.88
+            ],
+            [
+              0.06,
+              0.88
+            ]
+          ],
+          "sfx" : false,
+          "text" : "気をつけて！",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.52
+        ],
+        [
+          0.38,
+          0.52
+        ],
+        [
+          0.56,
+          0.98
+        ],
+        [
+          0.02,
+          0.98
+        ]
+      ],
+      "readingIndex" : 3
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "rightToLeft",
+  "schemaVersion" : 1
+}

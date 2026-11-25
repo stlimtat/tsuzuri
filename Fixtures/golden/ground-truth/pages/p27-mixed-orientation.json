@@ -1,0 +1,255 @@
+{
+  "id" : "p27-mixed-orientation",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "ほんじつ",
+              "start" : 0
+            },
+            {
+              "length" : 2,
+              "reading" : "きゅうぎょう",
+              "start" : 2
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.308,
+              0.086
+            ],
+            [
+              0.644,
+              0.086
+            ],
+            [
+              0.644,
+              0.2015
+            ],
+            [
+              0.308,
+              0.2015
+            ]
+          ],
+          "sfx" : false,
+          "text" : "本日休業",
+          "textOrientation" : "horizontal"
+        },
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "やす",
+              "start" : 3
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.7688,
+              0.0464
+            ],
+            [
+              0.9224,
+              0.0464
+            ],
+            [
+              0.9224,
+              0.317
+            ],
+            [
+              0.7688,
+              0.317
+            ]
+          ],
+          "sfx" : false,
+          "text" : "えっ、休み？",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.02
+        ],
+        [
+          0.98,
+          0.02
+        ],
+        [
+          0.98,
+          0.35
+        ],
+        [
+          0.02,
+          0.35
+        ]
+      ],
+      "readingIndex" : 0
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "き",
+              "start" : 4
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.7685,
+              0.4005
+            ],
+            [
+              0.9424,
+              0.4005
+            ],
+            [
+              0.9424,
+              0.736
+            ],
+            [
+              0.7685,
+              0.736
+            ]
+          ],
+          "sfx" : false,
+          "text" : "せっかく来たのに。",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.51,
+          0.37
+        ],
+        [
+          0.98,
+          0.37
+        ],
+        [
+          0.98,
+          0.98
+        ],
+        [
+          0.51,
+          0.98
+        ]
+      ],
+      "readingIndex" : 1
+    },
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 2,
+              "reading" : "あした",
+              "start" : 0
+            },
+            {
+              "length" : 1,
+              "reading" : "あさ",
+              "start" : 3
+            },
+            {
+              "length" : 2,
+              "reading" : "じゅうじ",
+              "start" : 4
+            },
+            {
+              "length" : 2,
+              "reading" : "かいてん",
+              "start" : 8
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.0576,
+              0.4188
+            ],
+            [
+              0.4524,
+              0.4188
+            ],
+            [
+              0.4524,
+              0.5835
+            ],
+            [
+              0.0576,
+              0.5835
+            ]
+          ],
+          "sfx" : false,
+          "text" : "明日は朝十時から開店します。",
+          "textOrientation" : "horizontal"
+        },
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "こ",
+              "start" : 2
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.302,
+              0.6445
+            ],
+            [
+              0.443,
+              0.6445
+            ],
+            [
+              0.443,
+              0.9495
+            ],
+            [
+              0.302,
+              0.9495
+            ]
+          ],
+          "sfx" : false,
+          "text" : "また来よう。",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.02,
+          0.37
+        ],
+        [
+          0.49,
+          0.37
+        ],
+        [
+          0.49,
+          0.98
+        ],
+        [
+          0.02,
+          0.98
+        ]
+      ],
+      "readingIndex" : 2
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "rightToLeft",
+  "schemaVersion" : 1
+}

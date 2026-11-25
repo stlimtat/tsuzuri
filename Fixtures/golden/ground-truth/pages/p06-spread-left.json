@@ -1,0 +1,65 @@
+{
+  "id" : "p06-spread-left",
+  "panels" : [
+    {
+      "bubbles" : [
+        {
+          "furigana" : [
+            {
+              "length" : 1,
+              "reading" : "およ",
+              "start" : 0
+            }
+          ],
+          "poisoned" : false,
+          "polygon" : [
+            [
+              0.7,
+              0.55
+            ],
+            [
+              0.86,
+              0.55
+            ],
+            [
+              0.86,
+              0.85
+            ],
+            [
+              0.7,
+              0.85
+            ]
+          ],
+          "sfx" : false,
+          "text" : "泳ぎに行こう！",
+          "textOrientation" : "vertical"
+        }
+      ],
+      "polygon" : [
+        [
+          0.04,
+          0.51
+        ],
+        [
+          0.96,
+          0.51
+        ],
+        [
+          0.96,
+          0.98
+        ],
+        [
+          0.04,
+          0.98
+        ]
+      ],
+      "readingIndex" : 2
+    }
+  ],
+  "pixelSize" : {
+    "height" : 1200,
+    "width" : 800
+  },
+  "readingDirection" : "rightToLeft",
+  "schemaVersion" : 1
+}

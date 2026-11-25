@@ -1,0 +1,266 @@
+{
+  "note" : "Features of each generated Page; written by generate.swift.",
+  "pages" : [
+    {
+      "features" : [
+        "verticalText",
+        "furigana"
+      ],
+      "id" : "p01-vertical-grid"
+    },
+    {
+      "features" : [
+        "horizontalText",
+        "furigana"
+      ],
+      "id" : "p02-horizontal-western"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "slantedPanel",
+        "sfx",
+        "furigana"
+      ],
+      "id" : "p03-slanted-sfx"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "horizontalText",
+        "borderlessPanel",
+        "poisonedText"
+      ],
+      "id" : "p04-borderless-poisoned"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "borderlessPanel",
+        "furigana"
+      ],
+      "id" : "p07-borderless-market"
+    },
+    {
+      "features" : [
+        "horizontalText",
+        "borderlessPanel",
+        "furigana"
+      ],
+      "id" : "p08-borderless-night"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "slantedPanel",
+        "sfx",
+        "furigana"
+      ],
+      "id" : "p09-slanted-chase"
+    },
+    {
+      "features" : [
+        "horizontalText",
+        "slantedPanel",
+        "furigana"
+      ],
+      "id" : "p10-slanted-match"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "furigana",
+        "denseDialogue"
+      ],
+      "id" : "p11-dense-cafe"
+    },
+    {
+      "features" : [
+        "horizontalText",
+        "furigana",
+        "denseDialogue"
+      ],
+      "id" : "p12-dense-classroom"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "furigana",
+        "smallFurigana"
+      ],
+      "id" : "p13-small-furigana-letter"
+    },
+    {
+      "features" : [
+        "horizontalText",
+        "furigana",
+        "smallFurigana"
+      ],
+      "id" : "p14-small-furigana-museum"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "furigana",
+        "smallFurigana"
+      ],
+      "id" : "p15-small-furigana-sign"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "horizontalText",
+        "furigana",
+        "poisonedText"
+      ],
+      "id" : "p16-poisoned-notice"
+    },
+    {
+      "features" : [
+        "horizontalText",
+        "furigana",
+        "poisonedText"
+      ],
+      "id" : "p17-poisoned-chat"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "twoPagesInOneScan",
+        "sfx",
+        "furigana"
+      ],
+      "id" : "p18-scan-moving-day"
+    },
+    {
+      "features" : [
+        "horizontalText",
+        "twoPagesInOneScan",
+        "furigana"
+      ],
+      "id" : "p19-scan-bookshop"
+    },
+    {
+      "features" : [
+        "horizontalText",
+        "furigana"
+      ],
+      "id" : "p20-scroll-stack"
+    },
+    {
+      "features" : [
+        "horizontalText",
+        "furigana"
+      ],
+      "id" : "p21-scroll-stagger"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "sfx",
+        "furigana"
+      ],
+      "id" : "p22-yonkoma"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "sfx",
+        "furigana"
+      ],
+      "id" : "p23-tall-panel"
+    },
+    {
+      "features" : [
+        "horizontalText",
+        "furigana"
+      ],
+      "id" : "p24-establishing"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "sfx",
+        "furigana"
+      ],
+      "id" : "p25-sfx-storm"
+    },
+    {
+      "features" : [
+        "horizontalText",
+        "sfx",
+        "furigana"
+      ],
+      "id" : "p26-sfx-horizontal"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "horizontalText",
+        "furigana"
+      ],
+      "id" : "p27-mixed-orientation"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "horizontalText",
+        "borderlessPanel",
+        "furigana",
+        "poisonedText"
+      ],
+      "id" : "p28-borderless-poisoned-sign"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "furigana",
+        "denseDialogue"
+      ],
+      "id" : "p29-dense-festival"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "twoPagesInOneScan",
+        "sfx",
+        "furigana"
+      ],
+      "id" : "p30-scan-rooftop"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "twoPagePanel",
+        "furigana"
+      ],
+      "id" : "p05-spread-right"
+    },
+    {
+      "features" : [
+        "verticalText",
+        "twoPagePanel",
+        "sfx",
+        "furigana"
+      ],
+      "id" : "p06-spread-left"
+    },
+    {
+      "features" : [
+        "horizontalText",
+        "twoPagePanel",
+        "furigana"
+      ],
+      "id" : "p31-spread2-left"
+    },
+    {
+      "features" : [
+        "horizontalText",
+        "twoPagePanel",
+        "furigana"
+      ],
+      "id" : "p32-spread2-right"
+    }
+  ],
+  "schemaVersion" : 1
+}
