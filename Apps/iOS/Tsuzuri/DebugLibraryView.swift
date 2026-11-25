@@ -23,6 +23,8 @@ struct DebugLibraryView: View {
                 }
                 .font(.subheadline)
                 .contentShape(.rect)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("workRow")
                 .onTapGesture { run { viewing = PageFile(url: try await model.firstPageFile(of: row.id)) } }
                 .swipeActions {
                     Button("Delete", role: .destructive) { deleting = row }
@@ -37,6 +39,7 @@ struct DebugLibraryView: View {
                 if model.rows.isEmpty {
                     ContentUnavailableView("No Works", systemImage: "books.vertical",
                                            description: Text("Add a sample Work to try the Library."))
+                        .accessibilityIdentifier("emptyLibrary")
                 }
             }
             .safeAreaInset(edge: .top) {
@@ -58,11 +61,13 @@ struct DebugLibraryView: View {
             .navigationTitle("Library (Debug)")
             .toolbar {
                 Button("Add Sample Work", systemImage: "plus") { run { try await addSample() } }
+                    .accessibilityIdentifier("addSampleWork")
             }
             .task { run { try await model.reload() } }
             .refreshable { do { try await model.refresh() } catch { failure = error.localizedDescription } }
             .alert("Rename Work", isPresented: isPresented($renaming)) {
                 TextField("Name", text: $newName)
+                    .accessibilityIdentifier("renameField")
                 Button("Cancel", role: .cancel) {}
                 Button("Save") {
                     guard let row = renaming else { return }
@@ -82,6 +87,7 @@ struct DebugLibraryView: View {
                     Group {
                         if let picture = UIImage(contentsOfFile: page.url.path) {
                             Image(uiImage: picture).resizable().scaledToFit()
+                                .accessibilityIdentifier("pageImage")
                         }
                     }
                     .toolbar { Button("Done") { viewing = nil } }

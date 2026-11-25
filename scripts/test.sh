@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Runs every Swift package's tests, the iOS app's logic tests (on macOS, no simulator needed), then the scripts' tests.
-# Usage: scripts/test.sh [package-name | App | Scripts] [extra test args]
+# Usage: scripts/test.sh [package-name | App | Scripts | UI] [extra test args]
+# UI (the app's flow tests in the iOS Simulator, scripts/ui-test.sh) is opt-in: it runs only when named, since it
+# needs a simulator runtime that CI runners may lack. `scripts/test.sh UI [simulator]` passes the simulator on.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -18,7 +20,9 @@ packages=("$named")
 shift || true
 for p in "${packages[@]}"; do
   echo "== $p"
-  if [[ "$p" == Scripts ]]; then
+  if [[ "$p" == UI ]]; then
+    bash scripts/ui-test.sh "$@"
+  elif [[ "$p" == Scripts ]]; then
     bash scripts/verify-archive.test.sh
   elif [[ "$p" == App ]]; then
     if [[ ${#flags[@]} -gt 0 ]]; then

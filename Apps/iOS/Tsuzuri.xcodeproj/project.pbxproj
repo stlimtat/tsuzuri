@@ -14,6 +14,16 @@
 		A10000000000000000000027 /* Persistence in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000023 /* Persistence */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		A10000000000000000000056 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A10000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A10000000000000000000010;
+			remoteInfo = Tsuzuri;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		A1000000000000000000000B /* Tsuzuri-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tsuzuri-Info.plist"; sourceTree = "<group>"; };
 		A1000000000000000000000C /* ExportOptions.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ExportOptions.plist; sourceTree = "<group>"; };
@@ -21,12 +31,14 @@
 		A10000000000000000000007 /* p01-vertical-grid.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "p01-vertical-grid.png"; path = "../../Fixtures/golden/pages/p01-vertical-grid.png"; sourceTree = SOURCE_ROOT; };
 		A10000000000000000000009 /* Tsuzuri.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tsuzuri.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000000000000000000000A /* TsuzuriTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TsuzuriTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000051 /* TsuzuriUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TsuzuriUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A10000000000000000000003 /* Tsuzuri */ = {isa = PBXFileSystemSynchronizedRootGroup; path = Tsuzuri; sourceTree = "<group>"; };
 		A10000000000000000000004 /* LibraryDebug */ = {isa = PBXFileSystemSynchronizedRootGroup; path = LibraryDebug; sourceTree = "<group>"; };
 		A10000000000000000000005 /* TsuzuriTests */ = {isa = PBXFileSystemSynchronizedRootGroup; path = TsuzuriTests; sourceTree = "<group>"; };
+		A10000000000000000000050 /* TsuzuriUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; path = TsuzuriUITests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,6 +60,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A10000000000000000000053 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -57,6 +76,7 @@
 				A10000000000000000000003 /* Tsuzuri */,
 				A10000000000000000000004 /* LibraryDebug */,
 				A10000000000000000000005 /* TsuzuriTests */,
+				A10000000000000000000050 /* TsuzuriUITests */,
 				A10000000000000000000006 /* Tsuzuri.entitlements */,
 				A1000000000000000000000B /* Tsuzuri-Info.plist */,
 				A1000000000000000000000C /* ExportOptions.plist */,
@@ -70,6 +90,7 @@
 			children = (
 				A10000000000000000000009 /* Tsuzuri.app */,
 				A1000000000000000000000A /* TsuzuriTests.xctest */,
+				A10000000000000000000051 /* TsuzuriUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -126,6 +147,26 @@
 			productReference = A1000000000000000000000A /* TsuzuriTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		A10000000000000000000052 /* TsuzuriUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000058 /* Build configuration list for PBXNativeTarget "TsuzuriUITests" */;
+			buildPhases = (
+				A10000000000000000000054 /* Sources */,
+				A10000000000000000000053 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A10000000000000000000057 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A10000000000000000000050 /* TsuzuriUITests */,
+			);
+			name = TsuzuriUITests;
+			productName = TsuzuriUITests;
+			productReference = A10000000000000000000051 /* TsuzuriUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -135,6 +176,11 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					A10000000000000000000052 = {
+						TestTargetID = A10000000000000000000010;
+					};
+				};
 			};
 			buildConfigurationList = A10000000000000000000040 /* Build configuration list for PBXProject "Tsuzuri" */;
 			developmentRegion = en;
@@ -156,6 +202,7 @@
 			targets = (
 				A10000000000000000000010 /* Tsuzuri */,
 				A10000000000000000000014 /* TsuzuriTests */,
+				A10000000000000000000052 /* TsuzuriUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -186,7 +233,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A10000000000000000000054 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A10000000000000000000057 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A10000000000000000000010 /* Tsuzuri */;
+			targetProxy = A10000000000000000000056 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A10000000000000000000041 /* Debug */ = {
@@ -317,6 +379,38 @@
 			};
 			name = Release;
 		};
+		A10000000000000000000059 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TSUZURI_BUNDLE_ID).uitests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Tsuzuri;
+			};
+			name = Debug;
+		};
+		A1000000000000000000005A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TSUZURI_BUNDLE_ID).uitests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Tsuzuri;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -343,6 +437,15 @@
 			buildConfigurations = (
 				A10000000000000000000047 /* Debug */,
 				A10000000000000000000048 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000058 /* Build configuration list for PBXNativeTarget "TsuzuriUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000059 /* Debug */,
+				A1000000000000000000005A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

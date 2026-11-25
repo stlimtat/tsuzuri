@@ -24,6 +24,8 @@ struct TsuzuriApp: App {
 /// The Library on this device, synced through the user's iCloud for the app's lifetime. With iCloud
 /// unavailable (signed out, or an unsigned build) it works locally and reports `.offline`.
 ///
+/// A UI test launch (`LibraryLaunch.uiTesting`, Debug builds only) opens its own Library with iCloud unavailable.
+///
 /// No push: remote changes arrive when the app becomes active (and on pull to refresh), not while it is open.
 @MainActor
 final class SyncedLibrary {
@@ -32,6 +34,15 @@ final class SyncedLibrary {
     private var tasks: [Task<Void, Never>] = []
 
     static func open() -> SyncedLibrary? {
+        #if DEBUG
+        let process = ProcessInfo.processInfo
+        if case .uiTesting(let root) = LibraryLaunch(arguments: process.arguments, environment: process.environment,
+                                                     temporaryDirectory: .temporaryDirectory) {
+            guard let store = try? CloudLibraryStore(root: root, records: UnavailableICloud(), files: UnavailableICloud())
+            else { return nil }
+            return SyncedLibrary(store: store)
+        }
+        #endif
         let configuration = LiveICloudConfiguration.make(bundleIdentifier: Bundle.main.bundleIdentifier ?? "")
         let root = URL.applicationSupportDirectory.appending(path: "Library", directoryHint: .isDirectory)
         guard let store = try? CloudLibraryStore(
