@@ -1,6 +1,6 @@
 # Tsuzuri: Specification Overview
 
-_Status: accepted · Last updated: 14 Nov 2026 · Owner: Lead_
+_Status: accepted · Last updated: 27 Nov 2026 · Owner: Lead_
 
 Read this first. It applies to every module and phase. The domain language is defined in `CONTEXT.md`; use those terms exactly in code, UI copy and specs. Decisions with lasting consequences are recorded as ADRs in `docs/adr/`.
 
@@ -16,7 +16,7 @@ An app for iPhone, iPad and Mac for reading, understanding and editing the comic
 
 | Phase | Name | Summary | Spec |
 |---|---|---|---|
-| **R1** | Panel Reader | Import, Library, Comic structure editing, Panel detection, OCR (horizontal on device, vertical in cloud), on-device translation, Read-aloud, Player, Cast, Renders, payments, iCloud sync | `specs/R1/*` |
+| **R1** | Panel Reader | Book track first (M2–M4: EPUB import, metadata editor and lookup, content editor, reader with Read-aloud; ADR 0008), then comic import, Library, Comic structure editing, Panel detection, OCR (horizontal on device, vertical in cloud), on-device translation, Read-aloud, Player, Cast, Renders, payments, iCloud sync | `specs/R1/*` |
 | R1.1 | Learner Tools | Tap-to-lookup dictionary, saved words, Anki export | `specs/R1.1.md` |
 | R1.5 | Metadata Editor Lite | Open an EPUB, edit title/author/series/cover, save, send to Apple Books | `specs/R1.5.md` |
 | R2 | EPUB Reader + Read-aloud | Reflowable EPUB reading with Read-aloud and highlighting | `specs/R2.md` |
@@ -102,16 +102,23 @@ A shared fixture set in `/Fixtures/golden`, owned by the Lead, used by every mod
 
 ## 9. R1 milestones
 
+**R1 goal:** a reader installs Tsuzuri from the App Store on iPhone and iPad, and uses it to fix, edit and read the EPUBs they own, and then to read raw Japanese manga Panel by Panel with translation, Read-aloud and paid Renders. Everything free runs on the device, and the Library syncs through their own iCloud.
+
+The book track (M2–M4) comes before the comic track (M5+) (ADR 0008). M0 Trials can run any time before M6.
+
 | # | Milestone | Exit criteria |
 |---|---|---|
-| M0 | **Trials** (2–3 weeks) | Vertical OCR: compare 2+ cloud options on the golden set (accuracy, cost per Bubble). Video: compare 3+ providers on acting quality, Character consistency, voice consistency across 3 Renders of one Character, refusal rate on manga-style Panels, cost per second, retention policy. Pick 2 video providers and 1 OCR provider. Decide the voice approach (ADR 0001 open point). |
+| M0 | **Trials** (2–3 weeks, before M6) | Vertical OCR: compare 2+ cloud options on the golden set (accuracy, cost per Bubble). Video: compare 3+ providers on acting quality, Character consistency, voice consistency across 3 Renders of one Character, refusal rate on manga-style Panels, cost per second, retention policy. Pick 2 video providers and 1 OCR provider. Decide the voice approach (ADR 0001 open point). |
 | M1 | Foundations | Monorepo, CI, `ComicStructure` v1, Persistence, golden set, security pipeline skeleton; an internal TestFlight build installed on the Lead's devices, with iCloud sync of Work records and files between them |
-| M2 | Import + Library + Comic editing | CBZ/ZIP/images import, Chapter/Page/Panel editing with undo |
-| M3 | Text | Bubbles, orientation, on-device OCR + translation; cloud vertical OCR behind sign-in and entitlement |
-| M4 | Player + Read-aloud | Panel-by-Panel reading in Story and Learn modes |
-| M5 | Cast + Renders | Cast tagging, Render jobs end to end with 2 providers, push notification, iCloud backup |
-| M6 | Payments + hardening | Subscription, credit packs, BYOK, consumption limits; external pen test passed |
-| M7 | Beta → App Store | External TestFlight with learners and fans; App Store review |
+| M2 | EPUB core + Library + metadata | EPUB import (Files, Open in, share sheet, iPad drag and drop) with DRM refusal; the real Library screen for books and comics; metadata editor with undo and a byte-preserving save; free lookup through Open Library and openBD by ISBN, barcode or title/author with per-field review; share sheet with the Apple Books guide; books sync between devices (issue #37) |
+| M3 | Content editor (iPad) | Spine file browser (add, rename, delete, reorder); Runestone code editor for XHTML/CSS/OPF/NCX; live WKWebView preview; save blocked on malformed XML or missing manifest files |
+| M4 | EPUB reader + Read-aloud | Readium spike decided; reflowable, fixed-layout and vertical Japanese books readable with reading settings; Read-aloud with sentence highlighting (<150 ms drift), speed, auto page turn, background audio and lock-screen controls in a reusable `ReadAloud` package; TOC navigation; reading position synced through iCloud |
+| M5 | Comic import + editing | CBZ/ZIP/images import, Chapter/Page/Panel editing with undo; per-entity merge (ADR 0007) before multi-device comic editing |
+| M6 | Text | Bubbles, orientation, on-device OCR + translation; cloud vertical OCR behind sign-in and entitlement |
+| M7 | Player + comic Read-aloud | Panel-by-Panel reading in Story and Learn modes |
+| M8 | Cast + Renders | Cast tagging, Render jobs end to end with 2 providers, push notification, iCloud backup |
+| M9 | Payments + hardening | Subscription, credit packs, BYOK, consumption limits; external pen test passed |
+| M10 | Beta → App Store | External TestFlight with learners and fans; App Store review |
 
 ## 10. Pricing and unit economics
 
@@ -140,3 +147,5 @@ A shared fixture set in `/Fixtures/golden`, owned by the Lead, used by every mod
 | 0005 | BYOK is for paying subscribers only and goes through our backend |
 | 0006 | Security baseline (OWASP LLM Top 10 2026, MASVS, API Top 10) and a pen test gate |
 | 0007 | The Library is one versioned JSON record per Work synced through CloudKit, not SwiftData; whole-Work last-writer-wins and tombstones in M1, per-entity merge before multi-device editing |
+| 0008 | The book track (EPUB core, metadata, content editor, reader) comes before comics in R1; M0 gates M6; per-entity merge moves to before M5 |
+| 0009 | Free keyless public catalog lookups (Open Library, openBD) go straight from the device, amending 0004 |
