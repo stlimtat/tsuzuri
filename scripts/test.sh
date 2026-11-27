@@ -24,6 +24,7 @@ for p in "${packages[@]}"; do
     bash scripts/ui-test.sh "$@"
   elif [[ "$p" == Scripts ]]; then
     bash scripts/verify-archive.test.sh
+    bash scripts/check-dependencies.test.sh
   elif [[ "$p" == App ]]; then
     if [[ ${#flags[@]} -gt 0 ]]; then
       # Asked for by name, a skip would look like a pass.

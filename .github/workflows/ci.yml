@@ -19,10 +19,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [ComicStructure, Persistence, App, Scripts]
+        package: [ComicStructure, Persistence, Archive, App, Scripts]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: scripts/test.sh ${{ matrix.package }}
+
+  archive-ios:
+    name: Build Archive (iOS Simulator)
+    runs-on: macos-26
+    # The app does not link Archive yet, so the app build cannot catch its vendored C failing to build for iOS.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: xcodebuild build -quiet -scheme Archive -destination 'generic/platform=iOS Simulator'
+        working-directory: Packages/Archive
 
   app:
     name: Build iOS app (Simulator, unsigned)

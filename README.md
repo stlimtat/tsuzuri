@@ -85,6 +85,8 @@ Releases go to TestFlight through a manually started GitHub Actions workflow on 
 
 Shared fixtures live in [`Fixtures/golden/`](Fixtures/golden/); security controls in [`security/`](security/).
 
+The `Archive` package vendors libarchive's C source, reproduced by `scripts/vendor-libarchive.sh`. Third-party licences are in [`THIRD_PARTY_LICENSES`](THIRD_PARTY_LICENSES).
+
 ## Status
 
 Pre-alpha. M1 (Foundations) in progress: `ComicStructure` v1 and a local `Persistence` store are in place.
