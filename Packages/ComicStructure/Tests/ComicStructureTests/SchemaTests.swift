@@ -51,7 +51,6 @@ import Testing
         #expect(work.book == nil)
     }
 
-    /// An older build decodes a record that has `book`, and its re-save drops it; a current build reads that back.
     @Test func anOlderBuildIgnoresBookSummaryAndItsResaveDecodesWithoutOne() throws {
         let work = makeBook(series: BookSeries(name: "Kokoro", number: 2))
 

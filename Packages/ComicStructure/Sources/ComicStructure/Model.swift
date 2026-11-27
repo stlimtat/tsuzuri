@@ -69,8 +69,7 @@ public struct BookSummary: Hashable, Codable, Sendable {
 
 public struct BookSeries: Hashable, Codable, Sendable {
     public var name: String
-    /// The book's position in the series, which may be fractional (2.5). Decimal, not Double, so it is
-    /// exact in base 10; it is a JSON number in the record. Never NaN (`Invariants`).
+    /// The book's position in the series, which may be fractional (2.5). Never NaN (`Invariants`).
     public var number: Decimal?
 
     public init(name: String, number: Decimal? = nil) { self.name = name; self.number = number }
