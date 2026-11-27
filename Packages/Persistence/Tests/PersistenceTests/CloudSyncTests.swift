@@ -174,7 +174,8 @@ import Testing
         #expect(await devices.a.syncStatus.first { _ in true } == .synced)
     }
 
-    @Test(.timeLimit(.minutes(1))) func aBookSaveThatReplacesItsFilesRemovesTheOldOnesFromICloud() async throws {
+    /// B had downloaded the old files; they leave B too, since no Work there names them any more.
+    @Test(.timeLimit(.minutes(1))) func aBookSaveThatReplacesItsFilesRemovesTheOldOnesEverywhere() async throws {
         let devices = try TwoDevices()
         let oldEPUB = try await devices.a.store(file: tempFile("old epub", ext: "epub"), kind: .source)
         let oldCover = try await devices.a.store(file: tempFile("old cover", ext: "jpg"), kind: .cover)
@@ -182,6 +183,8 @@ import Testing
         try await devices.a.save(original)
         try await devices.a.sync()
         try await devices.b.sync()
+        _ = try await devices.b.fileURL(for: oldEPUB)
+        _ = try await devices.b.fileURL(for: oldCover)
 
         let newEPUB = try await devices.a.store(file: tempFile("new epub", ext: "epub"), kind: .source)
         let newCover = try await devices.a.store(file: tempFile("new cover", ext: "jpg"), kind: .cover)
@@ -194,8 +197,36 @@ import Testing
 
         #expect(await devices.files.all == [newEPUB, newCover])
         #expect(try await devices.b.works(kind: nil) == [saved])
+        #expect(try await devices.b.isDownloaded(oldEPUB) == false)
+        #expect(try await devices.b.isDownloaded(oldCover) == false)
         #expect(try String(contentsOf: try await devices.b.fileURL(for: newEPUB), encoding: .utf8) == "new epub")
         #expect(await devices.a.syncStatus.first { _ in true } == .synced)
+    }
+
+    /// Both devices save the book with a new EPUB; A's later save wins, so B's new EPUB goes before it uploads.
+    @Test(.timeLimit(.minutes(1))) func aLosingBookSaveDropsItsNewFileBeforeItUploads() async throws {
+        let devices = try TwoDevices()
+        let oldEPUB = try await devices.a.store(file: tempFile("old epub", ext: "epub"), kind: .source)
+        let original = book(title: "Kokoro", epub: oldEPUB)
+        try await devices.a.save(original)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        let onB = try await devices.b.store(file: tempFile("epub from B", ext: "epub"), kind: .source)
+        try await devices.b.save(resaved(original, epub: onB))
+        try await devices.b.removeFile(oldEPUB)
+        let onA = try await devices.a.store(file: tempFile("epub from A", ext: "epub"), kind: .source)
+        var later = resaved(original, epub: onA)
+        later.updatedAt = later.updatedAt.addingTimeInterval(60)
+        try await devices.a.save(later)
+        try await devices.a.removeFile(oldEPUB)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        #expect(try await devices.b.works(kind: nil) == [later])
+        #expect(try await devices.b.isDownloaded(onB) == false)
+        #expect(await devices.files.all == [onA])
+        #expect(await devices.b.syncStatus.first { _ in true } == .synced)
     }
 
     /// B is still on the record naming the EPUB that A's save replaced and removed: opening it is `notFound`
