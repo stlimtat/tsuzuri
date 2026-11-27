@@ -45,6 +45,7 @@ extension Work {
         refs.formUnion(chapters.flatMap(\.pages).map(\.imageRef))
         refs.formUnion(cast.characters.flatMap(\.referenceCrops))
         refs.formUnion(renders.compactMap(\.videoRef))
+        if let cover = book?.cover { refs.insert(cover) }
         return refs
     }
 }

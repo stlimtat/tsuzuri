@@ -36,17 +36,43 @@ public struct Work: Identifiable, Hashable, Codable, Sendable {
     public var chapters: [Chapter]
     public var cast: Cast
     public var renders: [Render]
+    /// Books only: what the Library shows without opening the EPUB, derived from the EPUB's metadata on every
+    /// save. Nil in a record from before it existed, or re-saved by such a build, until the next save.
+    public var book: BookSummary?
 
     public init(
         id: UUID = UUID(), createdAt: Date = Date(), updatedAt: Date? = nil, kind: WorkKind, title: String,
         readingDirection: ReadingDirection, sourceLanguage: String = "ja", targetLanguage: String = "en",
-        sources: [Source] = [], chapters: [Chapter] = [], cast: Cast = Cast(), renders: [Render] = []
+        sources: [Source] = [], chapters: [Chapter] = [], cast: Cast = Cast(), renders: [Render] = [],
+        book: BookSummary? = nil
     ) {
         self.id = id; self.createdAt = createdAt; self.updatedAt = updatedAt ?? createdAt
         self.kind = kind; self.title = title; self.readingDirection = readingDirection
         self.sourceLanguage = sourceLanguage; self.targetLanguage = targetLanguage
         self.sources = sources; self.chapters = chapters; self.cast = cast; self.renders = renders
+        self.book = book
     }
+}
+
+/// A book Work's metadata as the Library shows it. The EPUB file is the source of truth; this is a copy.
+public struct BookSummary: Hashable, Codable, Sendable {
+    /// Display names, in the EPUB's author order.
+    public var authors: [String]
+    public var series: BookSeries?
+    /// The cover thumbnail extracted from the EPUB, or nil if it has none.
+    public var cover: FileRef?
+
+    public init(authors: [String] = [], series: BookSeries? = nil, cover: FileRef? = nil) {
+        self.authors = authors; self.series = series; self.cover = cover
+    }
+}
+
+public struct BookSeries: Hashable, Codable, Sendable {
+    public var name: String
+    /// The book's position in the series, which may be fractional (2.5). Never NaN (`Invariants`).
+    public var number: Decimal?
+
+    public init(name: String, number: Decimal? = nil) { self.name = name; self.number = number }
 }
 
 public struct Source: Identifiable, Hashable, Codable, Sendable {

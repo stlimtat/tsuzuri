@@ -174,6 +174,7 @@ actor PartlyDownloadedStore: LibraryStore {
     }
     func store(file: URL, kind: FileKind) async throws -> FileRef { try await local.store(file: file, kind: kind) }
     func evictLocalCopy(_ ref: FileRef) async throws { try await local.evictLocalCopy(ref) }
+    func removeFile(_ ref: FileRef) async throws { try await local.removeFile(ref) }
     nonisolated var syncStatus: AsyncStream<SyncStatus> { local.syncStatus }
 }
 
@@ -236,5 +237,6 @@ final class StatusStore: LibraryStore {
     func isDownloaded(_ ref: FileRef) async throws -> Bool { try await local.isDownloaded(ref) }
     func store(file: URL, kind: FileKind) async throws -> FileRef { try await local.store(file: file, kind: kind) }
     func evictLocalCopy(_ ref: FileRef) async throws { try await local.evictLocalCopy(ref) }
+    func removeFile(_ ref: FileRef) async throws { try await local.removeFile(ref) }
     var syncStatus: AsyncStream<SyncStatus> { statuses }
 }

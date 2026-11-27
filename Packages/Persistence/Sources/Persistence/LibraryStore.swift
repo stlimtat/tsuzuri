@@ -3,6 +3,8 @@ import Foundation
 
 public enum FileKind: String, Sendable, CaseIterable {
     case source, pageImage, referenceCrop, renderVideo
+    /// A book's cover thumbnail for the Library, extracted from its EPUB (which is a `source`).
+    case cover
 }
 
 public enum SyncStatus: Equatable, Sendable {
@@ -25,12 +27,16 @@ public protocol LibraryStore: Sendable {
     func save(_ work: Work) async throws
     /// Deletes the Work's record and every file it references.
     func delete(_ workID: Work.ID) async throws
-    /// Downloads the file first if only iCloud has it.
+    /// Downloads the file first if only iCloud has it. Throws `PersistenceError.notFound(ref.id)` if neither has
+    /// it, as when another device replaced the file and removed it: sync, then open the file the Work now names.
     func fileURL(for ref: FileRef) async throws -> URL
     /// Whether the file is on this device, so it opens without downloading.
     func isDownloaded(_ ref: FileRef) async throws -> Bool
     func store(file: URL, kind: FileKind) async throws -> FileRef
     func evictLocalCopy(_ ref: FileRef) async throws
+    /// Deletes a file no saved Work references any more, such as the EPUB a book save replaced, from this device
+    /// and from iCloud. Removing a file that is already gone is not an error.
+    func removeFile(_ ref: FileRef) async throws
     var syncStatus: AsyncStream<SyncStatus> { get }
 }
 
@@ -83,10 +89,12 @@ public actor LocalLibraryStore: LibraryStore {
     func removeWork(_ work: Work) throws {
         // Record first: a failure part-way leaves orphaned files, never a Work pointing at missing files.
         try FileManager.default.removeItem(at: layout.recordURL(work.id))
-        for ref in work.fileRefs {
-            let file = try layout.fileURL(ref)
-            if FileManager.default.fileExists(atPath: file.path) { try FileManager.default.removeItem(at: file) }
-        }
+        for ref in work.fileRefs { try deleteLocalCopy(ref) }
+    }
+
+    func deleteLocalCopy(_ ref: FileRef) throws {
+        let file = try layout.fileURL(ref)
+        if FileManager.default.fileExists(atPath: file.path) { try FileManager.default.removeItem(at: file) }
     }
 
     public func fileURL(for ref: FileRef) async throws -> URL {
@@ -110,6 +118,8 @@ public actor LocalLibraryStore: LibraryStore {
         _ = try await fileURL(for: ref)
         throw PersistenceError.notSafelyInCloud(ref)
     }
+
+    public func removeFile(_ ref: FileRef) async throws { try deleteLocalCopy(ref) }
 
     public nonisolated var syncStatus: AsyncStream<SyncStatus> {
         AsyncStream { $0.yield(.offline); $0.finish() }
