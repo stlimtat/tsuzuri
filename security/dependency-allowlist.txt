@@ -1,3 +1,11 @@
 # Third-party Swift package URLs approved by the Lead (specs/00-overview.md §4.1, specs/R1/security.md).
 # One URL per line, exactly as it appears in Package.resolved. Licence must be MIT, BSD, Apache-2.0 or similar.
 # Add the licence and approval date in a comment above each entry.
+#
+# Vendored source: one line per package target that holds C-family sources (scripts/check-dependencies.sh),
+#   vendored <target directory> <upstream URL> <release> <licence> <approval date>
+
+# libarchive, ZIP read/write and RAR read only, approved in specs/book-track-brief.md. Licence details in
+# THIRD_PARTY_LICENSES. Tarball SHA-256 900fe9fc7237c2b04f090f3c3648de8fe597525771f5035016537ce2d667d12b,
+# vendored by scripts/vendor-libarchive.sh.
+vendored Packages/Archive/Sources/CArchive https://github.com/libarchive/libarchive v3.8.11 BSD-2-Clause 2026-11-25
