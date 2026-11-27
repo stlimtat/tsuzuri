@@ -1,0 +1,266 @@
+#!/usr/bin/env bash
+# Drives the Tsuzuri iOS app in a dedicated, throwaway iOS Simulator for verification. See ../SKILL.md.
+#
+# Usage: verify-tsuzuri <command> [args]
+#   build                 Build the app (Debug, simulator, unsigned) stamped with the current git commit.
+#   launch                Boot a clean simulator, install the build, launch on an empty test Library.
+#   doctor                Read-only: is this run's instance worth driving? Exits non-zero when not.
+#   screenshot <name>     Save a simulator screenshot as <artifacts>/<name>.png.
+#   library [<name>]      Dump this run's Library (records, files, outbox) to <artifacts>/<name>.txt and stdout.
+#   relaunch              Terminate and relaunch the app on the same Library (persistence checks).
+#   reinstall             Install the current build (after 'build' or a ui-test) and relaunch on the same Library.
+#   ui-test [<test>...]   Run LibraryFlowTests (or only the named test methods) on this run's simulator.
+#   cleanup               Terminate the app, shut down this run's simulator (delete it in fresh mode). Keeps artifacts.
+#   env                   Print this run's state (UDID, Library name, artifacts dir) for other tools.
+#
+# A run is named by VERIFY_RUN (default: "latest", which `launch` points at the run it creates). State and
+# evidence live in <repo>/.verify/<run>/ (gitignored); cleanup never removes that directory.
+# VERIFY_SIM_MODE=shared (default) reuses one simulator named "tsuzuri-verify", erased at every launch, so the Claude
+# Code Simulator tool's per-device access grant is asked for once. VERIFY_SIM_MODE=fresh creates a simulator per run
+# ("tsuzuri-verify-<run>", deleted at cleanup) for runs side by side; the tool then asks for access every run.
+set -euo pipefail
+
+repo="$(git -C "$(dirname "$0")" rev-parse --show-toplevel)"
+verify_root="$repo/.verify"
+bundle_id="net.stlim.tsuzuri"
+device_type="${VERIFY_DEVICE_TYPE:-iPhone 17}"
+sim_mode="${VERIFY_SIM_MODE:-shared}"
+shared_sim="tsuzuri-verify"
+build_dir="${TMPDIR:-/tmp}/tsuzuri-build-app"
+app_path="$build_dir/sym/Debug-iphonesimulator/Tsuzuri.app"
+
+die() { echo "verify-tsuzuri: $*" >&2; exit 1; }
+log() { echo "verify-tsuzuri: $*" >&2; }
+
+run_dir() {
+  local run="${VERIFY_RUN:-latest}"
+  if [[ "$run" == latest ]]; then
+    [[ -L "$verify_root/latest" ]] || die "no run yet; run 'verify-tsuzuri launch' first"
+    (cd "$verify_root/latest" && pwd -P)
+  else
+    [[ -d "$verify_root/$run" ]] || die "no run named $run under $verify_root"
+    echo "$verify_root/$run"
+  fi
+}
+
+load_state() {
+  dir="$(run_dir)"
+  # shellcheck disable=SC1091
+  source "$dir/state.env"
+  SIM_MODE="${SIM_MODE:-fresh}" SIM_NAME="${SIM_NAME:-tsuzuri-verify-$RUN}"  # runs made before shared mode
+  artifacts="$dir/artifacts"
+}
+
+# The app's data container on this run's simulator; the test Library is <container>/tmp/<LIBRARY>.
+library_root() {
+  local container
+  container="$(xcrun simctl get_app_container "$UDID" "$bundle_id" data 2>/dev/null)" || return 1
+  echo "$container/tmp/$LIBRARY"
+}
+
+app_running() {
+  # Read the whole list first: `grep -q` exiting early would SIGPIPE launchctl and fail under pipefail.
+  local services
+  services="$(xcrun simctl spawn "$UDID" launchctl list 2>/dev/null)" || return 1
+  [[ "$services" == *"UIKitApplication:$bundle_id["* ]]
+}
+
+launch_app() {
+  # SIMCTL_CHILD_* reaches the app's environment; the argument and key are LibraryLaunch's UI-test switch.
+  SIMCTL_CHILD_TSUZURI_UI_TEST_LIBRARY="$LIBRARY" \
+    xcrun simctl launch --terminate-running-process "$UDID" "$bundle_id" -TsuzuriUITesting >/dev/null
+  # Ready = the app process is up and has opened (created) its Library on disk.
+  local root
+  for _ in $(seq 1 120); do
+    if app_running && root="$(library_root)" && [[ -d "$root/works" ]]; then
+      log "app is up on Library $LIBRARY"
+      return 0
+    fi
+    sleep 1
+  done
+  die "the app did not open its Library within 120s (see 'verify-tsuzuri doctor')"
+}
+
+cmd_build() {
+  local commit
+  commit="$(git -C "$repo" rev-parse HEAD)"
+  [[ -z "$(git -C "$repo" status --porcelain --untracked-files=no)" ]] || commit="$commit-dirty"
+  log "building Tsuzuri.app for commit $commit (first build on an Intel Mac takes several minutes)"
+  "$repo/scripts/build-app.sh" -quiet TSUZURI_COMMIT="$commit"
+  [[ -d "$app_path" ]] || die "build finished but $app_path is missing"
+  echo "$app_path"
+}
+
+# UDID of the simulator named exactly $1, or nothing.
+sim_udid_named() {
+  xcrun simctl list devices -j | python3 -I -c '
+import json, sys
+name = sys.argv[1]
+for devices in json.load(sys.stdin)["devices"].values():
+    for d in devices:
+        if d["name"] == name: print(d["udid"]); sys.exit()' "$1"
+}
+
+# The state line simctl prints for $1 (UDID), e.g. "tsuzuri-verify (UDID) (Booted)", or nothing.
+sim_line() { xcrun simctl list devices | grep "$1" || true; }
+
+cmd_launch() {
+  [[ -d "$app_path" ]] || die "no build at $app_path; run 'verify-tsuzuri build' first"
+  local run="${VERIFY_RUN:-$(date +%Y%m%d-%H%M%S)}"
+  [[ "$run" != latest ]] || run="$(date +%Y%m%d-%H%M%S)"
+  local dir="$verify_root/$run"
+  [[ ! -e "$dir/state.env" ]] || die "run $run already exists; pick another VERIFY_RUN or clean it up"
+
+  local runtime
+  runtime="$(xcrun simctl list runtimes available | awk '/^iOS /{id=$NF} END{print id}')"
+  [[ -n "$runtime" ]] || die "no iOS Simulator runtime installed (Xcode > Settings > Components)"
+  case "$sim_mode" in
+    shared)
+      SIM_NAME="$shared_sim"
+      UDID="$(sim_udid_named "$SIM_NAME")"
+      if [[ -z "$UDID" ]]; then
+        UDID="$(xcrun simctl create "$SIM_NAME" "$device_type" "$runtime")"
+        log "created simulator $SIM_NAME ($UDID) on $runtime"
+      fi
+      # Booted means another run (or a person) is using it: refuse rather than wipe it under them.
+      [[ "$(sim_line "$UDID")" != *"(Booted)"* ]] || die "simulator $SIM_NAME is already booted: another run owns" \
+        "it. Clean that run up (VERIFY_RUN=<run> verify-tsuzuri cleanup) or use VERIFY_SIM_MODE=fresh"
+      xcrun simctl erase "$UDID"
+      log "erased simulator $SIM_NAME ($UDID); booting" ;;
+    fresh)
+      SIM_NAME="tsuzuri-verify-$run"
+      UDID="$(xcrun simctl create "$SIM_NAME" "$device_type" "$runtime")"
+      log "created simulator $SIM_NAME ($UDID) on $runtime; booting (a minute or more on first boot)" ;;
+    *) die "VERIFY_SIM_MODE must be shared or fresh, not $sim_mode" ;;
+  esac
+  LIBRARY="Verify-$run"
+  mkdir -p "$dir/artifacts"
+  printf 'UDID=%s\nSIM_NAME=%s\nSIM_MODE=%s\nLIBRARY=%s\nRUN=%s\nCREATED_COMMIT=%s\n' "$UDID" "$SIM_NAME" \
+    "$sim_mode" "$LIBRARY" "$run" "$(git -C "$repo" rev-parse HEAD)" > "$dir/state.env"
+  ln -sfn "$run" "$verify_root/latest"
+
+  xcrun simctl boot "$UDID"
+  xcrun simctl bootstatus "$UDID" >/dev/null
+  xcrun simctl install "$UDID" "$app_path"
+  launch_app
+  artifacts="$dir/artifacts"
+  xcrun simctl io "$UDID" screenshot "$artifacts/00-launched.png" >/dev/null 2>&1
+  echo "run=$run udid=$UDID library=$LIBRARY artifacts=$artifacts"
+}
+
+cmd_doctor() {
+  load_state
+  local ok=1 state root installed want
+  echo "run:        $RUN ($dir)"
+  state="$(sim_line "$UDID")"
+  if [[ "$state" == *"$SIM_NAME ($UDID) (Booted)"* ]]; then echo "simulator:  ok, $SIM_NAME booted ($UDID, $SIM_MODE)"
+  else echo "simulator:  NOT READY: ${state:-missing} (this run's simulator is $SIM_NAME, $UDID)"; ok=0; fi
+
+  if installed="$(xcrun simctl get_app_container "$UDID" "$bundle_id" app 2>/dev/null)"; then
+    local have
+    have="$(/usr/libexec/PlistBuddy -c 'Print :TsuzuriCommit' "$installed/Info.plist" 2>/dev/null || true)"
+    want="$(git -C "$repo" rev-parse HEAD)"
+    if [[ "$have" == "$want"* ]]; then echo "build:      ok, installed app is commit $have"
+    else echo "build:      STALE: installed app is commit '${have:-none}', checkout is $want (verify-tsuzuri build, then" \
+      "reinstall; a ui-test also reinstalls its own build)"; ok=0; fi
+  else echo "build:      NOT INSTALLED"; ok=0; fi
+
+  if app_running; then echo "app:        ok, running"; else echo "app:        NOT RUNNING (verify-tsuzuri relaunch)"; ok=0; fi
+  if root="$(library_root)" && [[ -d "$root/works" ]]; then echo "library:    ok, $root"
+  else echo "library:    MISSING (the app never opened Library $LIBRARY)"; ok=0; fi
+  echo "artifacts:  $artifacts"
+  [[ $ok == 1 ]] && echo "doctor: healthy" || { echo "doctor: NOT healthy"; exit 1; }
+}
+
+cmd_screenshot() {
+  load_state
+  local name="${1:?usage: verify-tsuzuri screenshot <name>}"
+  xcrun simctl io "$UDID" screenshot "$artifacts/$name.png" >/dev/null 2>&1
+  echo "$artifacts/$name.png"
+}
+
+cmd_library() {
+  load_state
+  local name="${1:-library}" root out
+  root="$(library_root)" || die "app not installed on this run's simulator"
+  out="$artifacts/$name.txt"
+  {
+    echo "# Library $LIBRARY at $root ($(date -u +%FT%TZ))"
+    echo "## works/ (one versioned JSON record per Work)"
+    local f n=0
+    for f in "$root"/works/*.json; do
+      [[ -e "$f" ]] || continue
+      n=$((n + 1)); echo "### $(basename "$f")"; cat "$f"; echo
+    done
+    echo "work records: $n"
+    echo "## files/"
+    (cd "$root" && find files -type f -exec ls -l {} \; 2>/dev/null) || true
+    echo "## outbox.json"; cat "$root/outbox.json" 2>/dev/null || echo "(none)"; echo
+    echo "## deletions.json"; cat "$root/deletions.json" 2>/dev/null || echo "(none)"; echo
+  } | tee "$out"
+  log "saved $out"
+}
+
+cmd_relaunch() {
+  load_state
+  xcrun simctl terminate "$UDID" "$bundle_id" 2>/dev/null || true
+  launch_app
+}
+
+cmd_reinstall() {
+  load_state
+  [[ -d "$app_path" ]] || die "no build at $app_path; run 'verify-tsuzuri build' first"
+  xcrun simctl terminate "$UDID" "$bundle_id" 2>/dev/null || true
+  xcrun simctl install "$UDID" "$app_path"
+  launch_app
+}
+
+cmd_ui_test() {
+  load_state
+  local only=() t
+  if [[ $# -eq 0 ]]; then only=(-only-testing:TsuzuriUITests/LibraryFlowTests)
+  else for t in "$@"; do only+=(-only-testing:"TsuzuriUITests/LibraryFlowTests/$t"); done; fi
+  local result="$artifacts/ui-test-$(date +%H%M%S).xcresult"
+  log "running ${*:-all LibraryFlowTests} on $UDID; result bundle $result"
+  local status=0
+  # Same flags as scripts/ui-test.sh, pinned to this run's simulator. Reinstalls the app from its own build.
+  (cd "$repo/Apps/iOS" && xcodebuild test -quiet -project Tsuzuri.xcodeproj -scheme TsuzuriUITests -configuration Debug \
+    -destination "platform=iOS Simulator,id=$UDID" -derivedDataPath "${TMPDIR:-/tmp}/tsuzuri-ui-test/derived" \
+    -resultBundlePath "$result" "${only[@]}" \
+    ARCHS="$(uname -m)" ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO) || status=$?
+  xcrun xcresulttool get test-results tests --path "$result" > "${result%.xcresult}-tests.json" 2>/dev/null || true
+  xcrun xcresulttool get test-results summary --path "$result" | tee "${result%.xcresult}-summary.json" || true
+  return $status
+}
+
+cmd_cleanup() {
+  load_state
+  xcrun simctl terminate "$UDID" "$bundle_id" 2>/dev/null || true
+  xcrun simctl shutdown "$UDID" 2>/dev/null || true
+  # Delete only a simulator this run created (fresh mode), by UDID, and only if it still carries our name.
+  if [[ "$SIM_MODE" == fresh && "$(sim_line "$UDID")" == *"$SIM_NAME ($UDID)"* ]]; then
+    xcrun simctl delete "$UDID"
+    log "deleted simulator $SIM_NAME ($UDID)"
+  else
+    log "shut down simulator $SIM_NAME ($UDID); it is erased at the next launch"
+  fi
+  log "kept evidence in $artifacts"
+  ls -1 "$artifacts"
+}
+
+cmd_env() { load_state; printf 'RUN=%s\nSIM_NAME=%s\nUDID=%s\nLIBRARY=%s\nARTIFACTS=%s\n' "$RUN" "$SIM_NAME" "$UDID" "$LIBRARY" "$artifacts"; }
+
+command="${1:-}"; shift || true
+case "$command" in
+  build) cmd_build "$@" ;;
+  launch) cmd_launch "$@" ;;
+  doctor) cmd_doctor "$@" ;;
+  screenshot) cmd_screenshot "$@" ;;
+  library) cmd_library "$@" ;;
+  relaunch) cmd_relaunch "$@" ;;
+  reinstall) cmd_reinstall "$@" ;;
+  ui-test) cmd_ui_test "$@" ;;
+  cleanup) cmd_cleanup "$@" ;;
+  env) cmd_env "$@" ;;
+  *) sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; [[ -z "$command" ]] || exit 2 ;;
+esac
