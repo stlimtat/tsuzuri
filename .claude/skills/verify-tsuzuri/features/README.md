@@ -5,10 +5,10 @@ This directory is the maintained source for verifying Tsuzuri's user-facing beha
 ## Baseline preconditions
 
 - `V=.claude/skills/verify-tsuzuri/scripts/verify-tsuzuri`
-- `$V build` then `$V launch`. You get this run's own simulator `tsuzuri-verify-<run>` with the app open on an empty Library `Verify-<run>` and iCloud unavailable.
+- `$V build` then `$V launch`. You get the erased simulator `tsuzuri-verify` (or `tsuzuri-verify-<run>` with `VERIFY_SIM_MODE=fresh`) with the app open on an empty Library `Verify-<run>` and iCloud unavailable.
 - `$V doctor` prints `doctor: healthy`.
 - `$V env` gives the `UDID` to pass as `device` on every iOS Simulator tool call.
-- Never drive a simulator that this run did not create.
+- Never drive a simulator that this run did not launch (check `$V env`).
 
 ## Driving conventions
 

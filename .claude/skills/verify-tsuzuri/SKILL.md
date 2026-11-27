@@ -19,14 +19,14 @@ Run state and evidence live in `<repo>/.verify/<run>/` (gitignored). `.verify/la
 ## Launch
 
 1. `$V build` builds `Tsuzuri.app` (Debug, iOS Simulator, unsigned) through `scripts/build-app.sh`, stamped with `git rev-parse HEAD` (with `-dirty` when tracked files have changes). A warm build takes about 30 s. A cold one on this Intel Mac takes several minutes, so run it in the background.
-2. `$V launch` creates a **new simulator named `tsuzuri-verify-<run>`** (an iPhone 17 on the newest installed iOS runtime), boots it, installs the build and launches it with `-TsuzuriUITesting` and `TSUZURI_UI_TEST_LIBRARY=Verify-<run>`. That debug-only switch (`Apps/iOS/LibraryDebug/LibraryLaunch.swift`) opens an **empty Library in the app's tmp directory with iCloud unavailable**, so the run never touches a real Library or iCloud account. On first boot it takes 1 to 5 minutes.
+2. `$V launch` **erases and boots the simulator `tsuzuri-verify`** (an iPhone 17 on the newest installed iOS runtime, created on first use), installs the build and launches it with `-TsuzuriUITesting` and `TSUZURI_UI_TEST_LIBRARY=Verify-<run>`. That debug-only switch (`Apps/iOS/LibraryDebug/LibraryLaunch.swift`) opens an **empty Library in the app's tmp directory with iCloud unavailable**, so the run never touches a real Library or iCloud account. Launch takes about 1.5 minutes on this Intel Mac. If `tsuzuri-verify` is already booted, `launch` refuses: another run owns it. Clean that run up, or set `VERIFY_SIM_MODE=fresh`, which creates a throwaway `tsuzuri-verify-<run>` simulator that cleanup deletes.
 3. Ready means the app process is running and has created `works/` in its Library. `launch` waits up to 120 s for that, then prints `run=… udid=… library=… artifacts=…` and saves `00-launched.png`. If it times out, run `$V doctor`. The app is often up and only slow.
 
 There is no seed data. Every journey starts from an empty Library and makes its own Works with **Add Sample Work** (one Page, `p01-vertical-grid.png` from the golden set).
 
 ## Doctor
 
-`$V doctor` is read-only. It checks four things: this run's simulator exists, carries this run's name and is booted; the installed app's `TsuzuriCommit` matches the checkout's HEAD; the app process is running; and the run's Library exists on disk. It exits non-zero and names the failing line when the instance is not worth driving. Run it first, and again whenever anything looks off.
+`$V doctor` is read-only. It checks four things: this run's simulator (by UDID and name) is booted; the installed app's `TsuzuriCommit` matches the checkout's HEAD; the app process is running; and the run's Library exists on disk. It exits non-zero and names the failing line when the instance is not worth driving. Run it first, and again whenever anything looks off.
 
 - `build: STALE`: you changed code, or `ui-test` reinstalled its own build. Run `$V build` (if you changed code), then `$V reinstall`. The reinstall keeps the app's data, so the run's Library and its Works survive.
 - `app: NOT RUNNING`: run `$V relaunch`. It reopens the same Library.
@@ -35,7 +35,7 @@ There is no seed data. Every journey starts from an empty Library and makes its 
 
 There are two harnesses. Use both for a proof: the tool for the path a user takes, XCUITest for stable-handle assertions.
 
-**1. The Claude Code iOS Simulator tool (`mcp__Claude_Code_iOS_Simulator__control`) is the user's path.** Get the UDID from `$V env`, then pass `device: <UDID>` on every call so you never drive another simulator. Call `attach` once to open the live panel. Then loop: `screenshot`, tap, `screenshot`. Coordinates are in device points (402×874 on iPhone 17). Read them off a fresh screenshot: the image is scaled, so multiply image pixels by 402 / image width. Long-press is `tap` with `duration: 1.2`. Type with `text`. Swipe a row left with `swipe` from x≈350 to x≈80 at the row's y.
+**1. The Claude Code iOS Simulator tool (`mcp__Claude_Code_iOS_Simulator__control`) is the user's path.** Get the UDID from `$V env`, then pass `device: <UDID>` on every call so you never drive another simulator. Call `attach` once to open the live panel. The first use of a device asks the user for access. The shared `tsuzuri-verify` simulator keeps its UDID across runs, so the user grants access once. A `fresh` simulator asks again every run. If the user does not answer (they are away), the tool path is blocked: drive with `ui-test`, and report the tool's entry points as **not driven** with that reason. Then loop: `screenshot`, tap, `screenshot`. Coordinates are in device points (402×874 on iPhone 17). Read them off a fresh screenshot: the image is scaled, so multiply image pixels by 402 / image width. Long-press is `tap` with `duration: 1.2`. Type with `text`. Swipe a row left with `swipe` from x≈350 to x≈80 at the row's y.
 
 **2. XCUITest (`$V ui-test [testMethod...]`) uses stable handles.** It runs `Apps/iOS/TsuzuriUITests/LibraryFlowTests.swift` on this run's simulator, either all of it or only the named methods. The result bundle and a JSON summary go in the artifacts folder. Each test launches its own empty Library, so these tests do not see Works you added by hand. The run reinstalls the app from the test build, so `doctor` reports `STALE` afterward. To check new behavior, add a test method there and run it by name.
 
@@ -73,11 +73,11 @@ Proof standards:
 
 ## Cleanup
 
-`$V cleanup` terminates the app, shuts down and deletes **only this run's simulator** (by UDID, and only if it still carries the `tsuzuri-verify-<run>` name), then lists the kept evidence. It never touches other simulators, never kills processes by name and never deletes `.verify/`. Run it after every run, failed ones too. Remove old evidence yourself with `rm -rf .verify/<run>` when you no longer need it.
+`$V cleanup` terminates the app and shuts down **only this run's simulator** (by UDID). The shared `tsuzuri-verify` simulator is kept and erased at the next launch. A `fresh` one is deleted, but only if it still carries its `tsuzuri-verify-<run>` name. Cleanup then lists the kept evidence. It never touches other simulators, never kills processes by name and never deletes `.verify/`. Run it after every run, failed ones too. Remove old evidence yourself with `rm -rf .verify/<run>` when you no longer need it.
 
 ## Isolation and limits
 
-- Each run owns its simulator, so two runs can exist side by side. Do not run two `ui-test`s at once: they share the derived data at `$TMPDIR/tsuzuri-ui-test/derived`. Never point the helper or the tool at the user's own simulators (`iPhone 17` etc.). `scripts/ui-test.sh` uses those, and the helper does not.
+- One run at a time uses the shared simulator. For runs side by side, give each `VERIFY_SIM_MODE=fresh`. Do not run two `ui-test`s at once: they share the derived data at `$TMPDIR/tsuzuri-ui-test/derived`. Never point the helper or the tool at the user's own simulators (`iPhone 17` etc.). `scripts/ui-test.sh` uses those, and the helper does not.
 - These cannot be driven here: live iCloud sync between devices, the `iCloud full` banner, `Synced` / `Syncing` status and pull-to-refresh bringing in remote Works. They need a signed build and an iCloud account (`docs/release/testflight-checklist.md`). The logic for them is covered by `scripts/test.sh Persistence` and `scripts/test.sh App`, which are tests, not verification.
 - The build is x86_64 on this Mac (`uname -m`). `ui-test` builds for the host architecture only.
 

@@ -3,24 +3,29 @@
 #
 # Usage: verify-tsuzuri <command> [args]
 #   build                 Build the app (Debug, simulator, unsigned) stamped with the current git commit.
-#   launch                Create + boot this run's own simulator, install the build, launch on an empty test Library.
+#   launch                Boot a clean simulator, install the build, launch on an empty test Library.
 #   doctor                Read-only: is this run's instance worth driving? Exits non-zero when not.
 #   screenshot <name>     Save a simulator screenshot as <artifacts>/<name>.png.
 #   library [<name>]      Dump this run's Library (records, files, outbox) to <artifacts>/<name>.txt and stdout.
 #   relaunch              Terminate and relaunch the app on the same Library (persistence checks).
 #   reinstall             Install the current build (after 'build' or a ui-test) and relaunch on the same Library.
 #   ui-test [<test>...]   Run LibraryFlowTests (or only the named test methods) on this run's simulator.
-#   cleanup               Terminate the app, shut down and delete this run's simulator. Keeps the artifacts.
+#   cleanup               Terminate the app, shut down this run's simulator (delete it in fresh mode). Keeps artifacts.
 #   env                   Print this run's state (UDID, Library name, artifacts dir) for other tools.
 #
 # A run is named by VERIFY_RUN (default: "latest", which `launch` points at the run it creates). State and
 # evidence live in <repo>/.verify/<run>/ (gitignored); cleanup never removes that directory.
+# VERIFY_SIM_MODE=shared (default) reuses one simulator named "tsuzuri-verify", erased at every launch, so the Claude
+# Code Simulator tool's per-device access grant is asked for once. VERIFY_SIM_MODE=fresh creates a simulator per run
+# ("tsuzuri-verify-<run>", deleted at cleanup) for runs side by side; the tool then asks for access every run.
 set -euo pipefail
 
 repo="$(git -C "$(dirname "$0")" rev-parse --show-toplevel)"
 verify_root="$repo/.verify"
 bundle_id="net.stlim.tsuzuri"
 device_type="${VERIFY_DEVICE_TYPE:-iPhone 17}"
+sim_mode="${VERIFY_SIM_MODE:-shared}"
+shared_sim="tsuzuri-verify"
 build_dir="${TMPDIR:-/tmp}/tsuzuri-build-app"
 app_path="$build_dir/sym/Debug-iphonesimulator/Tsuzuri.app"
 
@@ -42,6 +47,7 @@ load_state() {
   dir="$(run_dir)"
   # shellcheck disable=SC1091
   source "$dir/state.env"
+  SIM_MODE="${SIM_MODE:-fresh}" SIM_NAME="${SIM_NAME:-tsuzuri-verify-$RUN}"  # runs made before shared mode
   artifacts="$dir/artifacts"
 }
 
@@ -85,23 +91,53 @@ cmd_build() {
   echo "$app_path"
 }
 
+# UDID of the simulator named exactly $1, or nothing.
+sim_udid_named() {
+  xcrun simctl list devices -j | python3 -I -c '
+import json, sys
+name = sys.argv[1]
+for devices in json.load(sys.stdin)["devices"].values():
+    for d in devices:
+        if d["name"] == name: print(d["udid"]); sys.exit()' "$1"
+}
+
+# The state line simctl prints for $1 (UDID), e.g. "tsuzuri-verify (UDID) (Booted)", or nothing.
+sim_line() { xcrun simctl list devices | grep "$1" || true; }
+
 cmd_launch() {
   [[ -d "$app_path" ]] || die "no build at $app_path; run 'verify-tsuzuri build' first"
   local run="${VERIFY_RUN:-$(date +%Y%m%d-%H%M%S)}"
   [[ "$run" != latest ]] || run="$(date +%Y%m%d-%H%M%S)"
   local dir="$verify_root/$run"
   [[ ! -e "$dir/state.env" ]] || die "run $run already exists; pick another VERIFY_RUN or clean it up"
-  mkdir -p "$dir/artifacts"
 
   local runtime
   runtime="$(xcrun simctl list runtimes available | awk '/^iOS /{id=$NF} END{print id}')"
   [[ -n "$runtime" ]] || die "no iOS Simulator runtime installed (Xcode > Settings > Components)"
-  UDID="$(xcrun simctl create "tsuzuri-verify-$run" "$device_type" "$runtime")"
+  case "$sim_mode" in
+    shared)
+      SIM_NAME="$shared_sim"
+      UDID="$(sim_udid_named "$SIM_NAME")"
+      if [[ -z "$UDID" ]]; then
+        UDID="$(xcrun simctl create "$SIM_NAME" "$device_type" "$runtime")"
+        log "created simulator $SIM_NAME ($UDID) on $runtime"
+      fi
+      # Booted means another run (or a person) is using it: refuse rather than wipe it under them.
+      [[ "$(sim_line "$UDID")" != *"(Booted)"* ]] || die "simulator $SIM_NAME is already booted: another run owns" \
+        "it. Clean that run up (VERIFY_RUN=<run> verify-tsuzuri cleanup) or use VERIFY_SIM_MODE=fresh"
+      xcrun simctl erase "$UDID"
+      log "erased simulator $SIM_NAME ($UDID); booting" ;;
+    fresh)
+      SIM_NAME="tsuzuri-verify-$run"
+      UDID="$(xcrun simctl create "$SIM_NAME" "$device_type" "$runtime")"
+      log "created simulator $SIM_NAME ($UDID) on $runtime; booting (a minute or more on first boot)" ;;
+    *) die "VERIFY_SIM_MODE must be shared or fresh, not $sim_mode" ;;
+  esac
   LIBRARY="Verify-$run"
-  printf 'UDID=%s\nLIBRARY=%s\nRUN=%s\nCREATED_COMMIT=%s\n' "$UDID" "$LIBRARY" "$run" \
-    "$(git -C "$repo" rev-parse HEAD)" > "$dir/state.env"
+  mkdir -p "$dir/artifacts"
+  printf 'UDID=%s\nSIM_NAME=%s\nSIM_MODE=%s\nLIBRARY=%s\nRUN=%s\nCREATED_COMMIT=%s\n' "$UDID" "$SIM_NAME" \
+    "$sim_mode" "$LIBRARY" "$run" "$(git -C "$repo" rev-parse HEAD)" > "$dir/state.env"
   ln -sfn "$run" "$verify_root/latest"
-  log "created simulator tsuzuri-verify-$run ($UDID) on $runtime; booting (a minute or more on first boot)"
 
   xcrun simctl boot "$UDID"
   xcrun simctl bootstatus "$UDID" >/dev/null
@@ -116,9 +152,9 @@ cmd_doctor() {
   load_state
   local ok=1 state root installed want
   echo "run:        $RUN ($dir)"
-  state="$(xcrun simctl list devices | grep "$UDID" || true)"
-  if [[ "$state" == *"tsuzuri-verify-$RUN"*"(Booted)"* ]]; then echo "simulator:  ok, ours and booted ($UDID)"
-  else echo "simulator:  NOT READY: ${state:-missing} (this run's simulator must be named tsuzuri-verify-$RUN)"; ok=0; fi
+  state="$(sim_line "$UDID")"
+  if [[ "$state" == *"$SIM_NAME ($UDID) (Booted)"* ]]; then echo "simulator:  ok, $SIM_NAME booted ($UDID, $SIM_MODE)"
+  else echo "simulator:  NOT READY: ${state:-missing} (this run's simulator is $SIM_NAME, $UDID)"; ok=0; fi
 
   if installed="$(xcrun simctl get_app_container "$UDID" "$bundle_id" app 2>/dev/null)"; then
     local have
@@ -201,16 +237,18 @@ cmd_cleanup() {
   load_state
   xcrun simctl terminate "$UDID" "$bundle_id" 2>/dev/null || true
   xcrun simctl shutdown "$UDID" 2>/dev/null || true
-  # Delete only the simulator this run created, by UDID, and only if it still carries our name.
-  if xcrun simctl list devices | grep "$UDID" | grep -q "tsuzuri-verify-$RUN"; then
+  # Delete only a simulator this run created (fresh mode), by UDID, and only if it still carries our name.
+  if [[ "$SIM_MODE" == fresh && "$(sim_line "$UDID")" == *"$SIM_NAME ($UDID)"* ]]; then
     xcrun simctl delete "$UDID"
-    log "deleted simulator tsuzuri-verify-$RUN ($UDID)"
+    log "deleted simulator $SIM_NAME ($UDID)"
+  else
+    log "shut down simulator $SIM_NAME ($UDID); it is erased at the next launch"
   fi
   log "kept evidence in $artifacts"
   ls -1 "$artifacts"
 }
 
-cmd_env() { load_state; printf 'RUN=%s\nUDID=%s\nLIBRARY=%s\nARTIFACTS=%s\n' "$RUN" "$UDID" "$LIBRARY" "$artifacts"; }
+cmd_env() { load_state; printf 'RUN=%s\nSIM_NAME=%s\nUDID=%s\nLIBRARY=%s\nARTIFACTS=%s\n' "$RUN" "$SIM_NAME" "$UDID" "$LIBRARY" "$artifacts"; }
 
 command="${1:-}"; shift || true
 case "$command" in
@@ -224,5 +262,5 @@ case "$command" in
   ui-test) cmd_ui_test "$@" ;;
   cleanup) cmd_cleanup "$@" ;;
   env) cmd_env "$@" ;;
-  *) sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; [[ -z "$command" ]] || exit 2 ;;
+  *) sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; [[ -z "$command" ]] || exit 2 ;;
 esac
