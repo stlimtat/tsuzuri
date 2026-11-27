@@ -66,6 +66,9 @@ public enum Invariants {
             try unique(render.id)
             guard (1...10).contains(render.panelIDs.count) else { throw fail("Render \(render.id) must have 1–10 Panels") }
         }
+
+        // JSONEncoder writes a NaN Decimal as a bare `NaN`, which is not JSON: the record would never decode again.
+        if work.book?.series?.number?.isNaN == true { throw fail("Work \(work.id) series number is NaN") }
     }
 
     /// Invariant 3 at creation: 1–10 Panels of one Chapter, consecutive by reading index.
