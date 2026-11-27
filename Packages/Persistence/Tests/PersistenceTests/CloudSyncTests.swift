@@ -174,6 +174,52 @@ import Testing
         #expect(await devices.a.syncStatus.first { _ in true } == .synced)
     }
 
+    @Test(.timeLimit(.minutes(1))) func aBookSaveThatReplacesItsFilesRemovesTheOldOnesFromICloud() async throws {
+        let devices = try TwoDevices()
+        let oldEPUB = try await devices.a.store(file: tempFile("old epub", ext: "epub"), kind: .source)
+        let oldCover = try await devices.a.store(file: tempFile("old cover", ext: "jpg"), kind: .cover)
+        let original = book(title: "Kokoro", epub: oldEPUB, cover: oldCover)
+        try await devices.a.save(original)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        let newEPUB = try await devices.a.store(file: tempFile("new epub", ext: "epub"), kind: .source)
+        let newCover = try await devices.a.store(file: tempFile("new cover", ext: "jpg"), kind: .cover)
+        let saved = resaved(original, epub: newEPUB, cover: newCover)
+        try await devices.a.save(saved)
+        try await devices.a.removeFile(oldEPUB)
+        try await devices.a.removeFile(oldCover)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        #expect(await devices.files.all == [newEPUB, newCover])
+        #expect(try await devices.b.works(kind: nil) == [saved])
+        #expect(try String(contentsOf: try await devices.b.fileURL(for: newEPUB), encoding: .utf8) == "new epub")
+        #expect(await devices.a.syncStatus.first { _ in true } == .synced)
+    }
+
+    /// B is still on the record naming the EPUB that A's save replaced and removed: opening it is `notFound`
+    /// until B syncs, and then B's Work names the new EPUB, which opens.
+    @Test(.timeLimit(.minutes(1))) func aDeviceOnTheOldRecordCannotOpenTheRemovedFileUntilItSyncs() async throws {
+        let devices = try TwoDevices()
+        let oldEPUB = try await devices.a.store(file: tempFile("old epub", ext: "epub"), kind: .source)
+        let original = book(title: "Kokoro", epub: oldEPUB)
+        try await devices.a.save(original)
+        try await devices.a.sync()
+        try await devices.b.sync()
+
+        let newEPUB = try await devices.a.store(file: tempFile("new epub", ext: "epub"), kind: .source)
+        try await devices.a.save(resaved(original, epub: newEPUB))
+        try await devices.a.removeFile(oldEPUB)
+        try await devices.a.sync()
+
+        let stale = try #require(try await devices.b.works(kind: nil).first?.sources.first?.fileRef)
+        await #expect(throws: PersistenceError.notFound(stale.id)) { try await devices.b.fileURL(for: stale) }
+        try await devices.b.sync()
+        let current = try #require(try await devices.b.works(kind: nil).first?.sources.first?.fileRef)
+        #expect(try String(contentsOf: try await devices.b.fileURL(for: current), encoding: .utf8) == "new epub")
+    }
+
     /// B edits the Work while offline (before A's delete); once B is back, the tombstone wins on both.
     @Test(.timeLimit(.minutes(1))) func aSaveQueuedOnBWhileOfflineDoesNotBringADeletedWorkBack() async throws {
         let devices = try TwoDevices()

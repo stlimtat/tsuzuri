@@ -114,6 +114,11 @@ public actor CloudLibraryStore: LibraryStore {
         guard try await files.isUploaded(ref) else { throw PersistenceError.notSafelyInCloud(ref) }
         if FileManager.default.fileExists(atPath: url.path) { try FileManager.default.removeItem(at: url) }
     }
+    /// Deletes the local copy now and queues the removal from iCloud, which replaces the upload if that hasn't run.
+    public func removeFile(_ ref: FileRef) async throws {
+        try await local.removeFile(ref)
+        try updateOutbox { $0.queueRemoval(of: [ref]) }
+    }
     /// Brings this device and iCloud up to date: applies remote changes, then uploads queued files and
     /// records (files first, so no uploaded record points at a file iCloud lacks).
     /// Throws when iCloud is unreachable or refuses the upload; whatever didn't upload stays queued. A failure
@@ -171,8 +176,8 @@ public actor CloudLibraryStore: LibraryStore {
         try advance(to: changes.token)
 
         for ref in outbox.files {
-            // A queued file is gone from disk only because its Work was deleted: by a tombstone applied above,
-            // or here while this sync awaited. Nothing to upload, so it just leaves the queue.
+            // A queued file is gone from disk only because it was removed while this sync awaited, or its Work
+            // was deleted by a tombstone applied above or here meanwhile. Nothing to upload, so it just leaves the queue.
             let url = try local.layout.fileURL(ref)
             if FileManager.default.fileExists(atPath: url.path) { try await files.copyIn(url, as: ref) }
             try updateOutbox { _ = $0.files.remove(ref) }
@@ -269,7 +274,7 @@ struct Outbox: Codable {
     private(set) var works: [Work.ID: UInt64] = [:]
     var files: Set<FileRef> = []
     var tombstones: [Tombstone] = []
-    /// Files of deleted Works, to remove from iCloud.
+    /// Files to remove from iCloud: those of deleted Works, and those `removeFile` was given.
     var removals: Set<FileRef> = []
     private var generation: UInt64 = 0
     var isEmpty: Bool { works.isEmpty && files.isEmpty && tombstones.isEmpty && removals.isEmpty }
@@ -279,10 +284,15 @@ struct Outbox: Codable {
         works[id] = generation
     }
 
-    /// Queues a deleted Work's tombstone and file removals in place of its files still waiting to upload.
+    /// Queues a deleted Work's tombstone and the removal of its files.
     mutating func queue(_ tombstone: Tombstone, removing refs: Set<FileRef>) {
-        files.subtract(refs)
         tombstones.append(tombstone)
+        queueRemoval(of: refs)
+    }
+
+    /// Queues the files' removal from iCloud in place of any upload of them still waiting.
+    mutating func queueRemoval(of refs: Set<FileRef>) {
+        files.subtract(refs)
         removals.formUnion(refs)
     }
 

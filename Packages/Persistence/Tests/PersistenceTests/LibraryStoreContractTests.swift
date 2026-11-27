@@ -57,6 +57,15 @@ func book(title: String, epub: FileRef, cover: FileRef? = nil) -> Work {
          book: BookSummary(authors: ["Natsume Sōseki"], cover: cover))
 }
 
+/// The book as a save that wrote it a new EPUB (and cover) leaves it: naming the new files, with a later `updatedAt`.
+func resaved(_ work: Work, epub: FileRef, cover: FileRef? = nil) -> Work {
+    var saved = book(title: work.title, epub: epub, cover: cover)
+    saved.id = work.id
+    saved.createdAt = work.createdAt
+    saved.updatedAt = work.updatedAt.addingTimeInterval(60)
+    return saved
+}
+
 /// The behaviour every `LibraryStore` shares, run against each store in `StoreFactory.all`.
 @Suite struct LibraryStoreContractTests {
     static let escapingFileRefs = ["../../etc/passwd", "pageImage/../../x.png", "/etc/passwd", "nope/\(UUID()).png",
@@ -155,6 +164,50 @@ func book(title: String, epub: FileRef, cover: FileRef? = nil) -> Work {
 
         #expect(try await store.isDownloaded(epub) == false)
         #expect(try await store.isDownloaded(cover) == false)
+    }
+
+    /// A book save stores the new EPUB and cover, saves the Work naming them, then removes the replaced files.
+    @Test(arguments: StoreFactory.all)
+    func aBookSaveThatReplacesItsFilesLeavesOnlyTheNewOnes(_ factory: StoreFactory) async throws {
+        let store = try factory.make().store
+        let oldEPUB = try await store.store(file: tempFile("old epub", ext: "epub"), kind: .source)
+        let oldCover = try await store.store(file: tempFile("old cover", ext: "jpg"), kind: .cover)
+        let original = book(title: "Kokoro", epub: oldEPUB, cover: oldCover)
+        try await store.save(original)
+
+        let newEPUB = try await store.store(file: tempFile("new epub", ext: "epub"), kind: .source)
+        let newCover = try await store.store(file: tempFile("new cover", ext: "jpg"), kind: .cover)
+        let saved = resaved(original, epub: newEPUB, cover: newCover)
+        try await store.save(saved)
+        try await store.removeFile(oldEPUB)
+        try await store.removeFile(oldCover)
+
+        #expect(try await store.works(kind: nil) == [saved])
+        for gone in [oldEPUB, oldCover] {
+            await #expect(throws: PersistenceError.notFound(gone.id)) { try await store.fileURL(for: gone) }
+        }
+        #expect(try String(contentsOf: try await store.fileURL(for: newEPUB), encoding: .utf8) == "new epub")
+        #expect(try String(contentsOf: try await store.fileURL(for: newCover), encoding: .utf8) == "new cover")
+    }
+
+    @Test(arguments: StoreFactory.all)
+    func removingAFileThatIsAlreadyGoneIsNoError(_ factory: StoreFactory) async throws {
+        let store = try factory.make().store
+        let ref = try await store.store(file: tempFile("epub", ext: "epub"), kind: .source)
+
+        try await store.removeFile(ref)
+        try await store.removeFile(ref)
+        try await store.removeFile(FileRef("source/\(UUID()).epub"))
+
+        #expect(try await store.isDownloaded(ref) == false)
+    }
+
+    @Test(arguments: StoreFactory.all)
+    func removeFileRejectsFileRefsThatEscapeTheLibrary(_ factory: StoreFactory) async throws {
+        let store = try factory.make().store
+        for id in Self.escapingFileRefs {
+            await #expect(throws: PersistenceError.invalidFileRef(id)) { try await store.removeFile(FileRef(id)) }
+        }
     }
 
     @Test(arguments: StoreFactory.all)
