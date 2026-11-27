@@ -470,7 +470,7 @@ import Testing
         #expect(await devices.a.syncStatus.first { _ in true } == .synced)
     }
 
-    enum Tampering: CaseIterable, Sendable { case badJSON, invariantViolation, pathTraversalFileRef }
+    enum Tampering: CaseIterable, Sendable { case badJSON, invariantViolation, pathTraversalFileRef, pathTraversalCover }
 
     /// A tampered record for a Work B already has arrives first in a batch, ahead of a good record.
     @Test(.timeLimit(.minutes(1)), arguments: Tampering.allCases)
@@ -493,6 +493,9 @@ import Testing
             payload = try ComicSchema.encode(tampered)
         case .pathTraversalFileRef:
             tampered.chapters[0].pages[0].imageRef = FileRef("pageImage/../../../etc/passwd")
+            payload = try ComicSchema.encode(tampered)
+        case .pathTraversalCover:
+            tampered.book = BookSummary(cover: FileRef("cover/../../../etc/passwd"))
             payload = try ComicSchema.encode(tampered)
         }
         let good = Work(kind: .book, title: "Good", readingDirection: .leftToRight)

@@ -51,6 +51,12 @@ func comic(title: String, pageImage: FileRef, source: FileRef) -> Work {
                 chapters: [Chapter(title: "1", index: 0, pages: [page])])
 }
 
+func book(title: String, epub: FileRef, cover: FileRef? = nil) -> Work {
+    Work(kind: .book, title: title, readingDirection: .leftToRight,
+         sources: [Source(fileName: "book.epub", contentType: "org.idpf.epub-container", byteSize: 3, fileRef: epub)],
+         book: BookSummary(authors: ["Natsume Sōseki"], cover: cover))
+}
+
 /// The behaviour every `LibraryStore` shares, run against each store in `StoreFactory.all`.
 @Suite struct LibraryStoreContractTests {
     static let escapingFileRefs = ["../../etc/passwd", "pageImage/../../x.png", "/etc/passwd", "nope/\(UUID()).png",
@@ -129,6 +135,29 @@ func comic(title: String, pageImage: FileRef, source: FileRef) -> Work {
     }
 
     @Test(arguments: StoreFactory.all)
+    func aStoredCoverResolvesToItsContentsAfterARelaunch(_ factory: StoreFactory) async throws {
+        let fixture = try factory.make()
+        let cover = try await fixture.store.store(file: tempFile("cover", ext: "jpg"), kind: .cover)
+        #expect(cover.id.hasPrefix("cover/") && cover.id.hasSuffix(".jpg"))
+        let url = try await fixture.reopen().fileURL(for: cover)
+        #expect(try String(contentsOf: url, encoding: .utf8) == "cover")
+    }
+
+    @Test(arguments: StoreFactory.all)
+    func deletingABookRemovesItsEPUBAndCover(_ factory: StoreFactory) async throws {
+        let store = try factory.make().store
+        let epub = try await store.store(file: tempFile("epub", ext: "epub"), kind: .source)
+        let cover = try await store.store(file: tempFile("cover", ext: "jpg"), kind: .cover)
+        let work = book(title: "Gone", epub: epub, cover: cover)
+        try await store.save(work)
+
+        try await store.delete(work.id)
+
+        #expect(try await store.isDownloaded(epub) == false)
+        #expect(try await store.isDownloaded(cover) == false)
+    }
+
+    @Test(arguments: StoreFactory.all)
     func fileRefsCannotEscapeTheLibrary(_ factory: StoreFactory) async throws {
         let store = try factory.make().store
         for id in Self.escapingFileRefs {
@@ -188,5 +217,16 @@ func comic(title: String, pageImage: FileRef, source: FileRef) -> Work {
         var statuses: [SyncStatus] = []
         for await status in store.syncStatus { statuses.append(status) }
         #expect(statuses == [.offline])
+    }
+
+    /// A Library made by a build without covers has no folder for them until a store opens it.
+    @Test func aLibraryFromBeforeCoversCanStoreOne() async throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: "LibraryStoreTests-\(UUID())")
+        _ = try LocalLibraryStore(root: root)
+        try FileManager.default.removeItem(at: root.appending(path: "files/cover"))
+
+        let cover = try await LocalLibraryStore(root: root).store(file: tempFile("cover", ext: "jpg"), kind: .cover)
+
+        #expect(try await LocalLibraryStore(root: root).isDownloaded(cover))
     }
 }

@@ -3,6 +3,8 @@ import Foundation
 
 public enum FileKind: String, Sendable, CaseIterable {
     case source, pageImage, referenceCrop, renderVideo
+    /// A book's cover thumbnail for the Library, extracted from its EPUB (which is a `source`).
+    case cover
 }
 
 public enum SyncStatus: Equatable, Sendable {
